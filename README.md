@@ -4,10 +4,10 @@ Hyphen - A custom element base class for great developer ergonomics.
 
 ## What great developer ergonomics?
 
-- Custom elements 
-- Templating literals 
-- Void tags 
-- Inline events 
+- `<custom-elements>`
+- ``` `${template}<literals` ``` 
+- `<void-tags />`
+- `inline=events`
 - Minimal boilerplate 
 - Small class size
   
