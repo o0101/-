@@ -3,7 +3,7 @@
 
   class $ extends HTMLElement {
     static get observedAttributes() {
-      return ['state', ...(this.attrs ? Array.from(this.attrs).map(attr => attr.name) : [])];
+      return ['state', ...(this.attrs ? this.attrs : [])];
     }
 
     // override in your element if needed
@@ -56,7 +56,15 @@
         this.state = val;
       } else {
         const propName = attributeToProperty(name);
-        this[propName] = newValue;
+        // we need to make the property update async 
+        // otherwise the setter triggers an infinite loop
+        if ( this[propName] != newValue ) {
+          setTimeout(() => {
+            this[propName] = newValue;
+            this.render();
+            console.log('rendered');
+           }, 0);
+        }
       }
     }
 
@@ -75,6 +83,7 @@
             } else {
               this.setAttribute(attr, value);
             }
+            this.render();
           }
         });
       });
@@ -86,7 +95,11 @@
     }
 
     set state(newState) {
-      this[$state] = newState;
+      if ( this[$state] == undefined ) {
+        this[$state] = newState;
+      } else {
+        this[$state] = Object.assign(this[$state], newState);
+      }
       this.render();
     }
 

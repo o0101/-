@@ -13,6 +13,81 @@ Hyphen - A custom element base class for great developer ergonomics.
   
 It's important to remember that what constitutes great ergonomics, like great sports car seats, varies for individuals. While there may be some things we can all agree on, other things may be harder to. It's good to keep this diversity in mind when evaluating any project. 
 
+# Introduction and Code Example
+
+## Overview
+
+Hyphen empowers developers by simplifying the creation and management of custom web components with a robust base class. 
+
+It enhances developer ergonomics through seamless state and property synchronization and intuitive template definitions. 
+
+By simply encapsulating the complexity of attribute observation and shadow DOM rendering, Hyphen allows you to declare behavior and structure in a more declarative and concise way.
+
+Hyphen is also very short, making it easy to build on as a custom element base for your applications.
+
+## Example Code
+
+In this example, we create a `MyGreeting` element that uses Hyphen's base class to manage its state and respond to user interactions. 
+
+This element displays a greeting message that changes when the button is clicked, demonstrating the dynamic capabilities of Hyphen with minimal coding required.
+
+```html
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Hyphen Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="-.js"></script>
+  </head>
+  <body>
+    <!-- Define your custom element with minimal boilerplate -->
+    <script>
+      class MyGreeting extends $ {
+        // Specify observed attributes for automatic property sync
+        static get attrs() {
+          return ['name'];
+        }
+
+        // Define initial state if needed
+        constructor() {
+          super({ greeting: 'Hello' });
+        }
+
+        // Respond to user interaction
+        changeGreeting() {
+          this.state = { greeting: this.state.greeting == 'Hi' ? 'Hello' : 'Hi' };
+        }
+
+        // Declare the template using state directly
+        template() {
+          return `
+            <span>${greeting}, ${host.name}!</span>
+            <button onclick="changeGreeting">Change Greeting</button>
+          `;
+        }
+      }
+
+      // Register the custom element with the browser
+      customElements.define('my-greeting', MyGreeting);
+    </script>
+
+    <!-- Use the custom element in HTML, set attributes as properties, separate to internal state -->
+    <my-greeting name="Cris"></my-greeting>
+
+    <script>
+      // The element is already rendered once it's connected to the DOM
+      const greetingElement = document.querySelector('my-greeting');
+
+      // Attributes can be updated programmatically if necessary
+      setTimeout(() => greetingElement.name = 'Awesome Developer', 5000);
+    </script>
+  </body>
+  </html>
+```
+
+With Hyphen, you get a streamlined workflow for your custom elements where the usual complexities are handled for you. 
+
 # Our manifesto
 
 We want to build something that works for you. Or, rather, *some* of you; but not *all* of you. 
