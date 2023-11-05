@@ -1,7 +1,7 @@
 {
   "name": "-",
-  "version": "0.0.1",
-  "description": "\"Hyphen - custom elements for the new age\"",
+  "version": "0.0.2",
+  "description": "Hyphen - custom elements for the new age",
   "main": "-.js",
   "scripts": {
     "test": "serve --ssl-cert ~/sslcerts/fullchain.pem --ssl-key ~/sslcerts/privkey.pem -p 8080"

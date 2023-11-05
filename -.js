@@ -127,7 +127,7 @@
     this.state['__'] = this.constructor.name;
     this.state.host = this;
     with (this.state) {
-      return eval(`(function ${this.template.toString()}())`);
+      return eval(`(function ${this.template.toString().replace(/^\s*function\s+/,'')}())`);
     }
   }
 
