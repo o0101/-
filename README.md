@@ -13,15 +13,6 @@ Hyphen - A custom element base class for great developer ergonomics.
   
 It's important to remember that what constitutes great ergonomics, like great sports car seats, varies for individuals. While there may be some things we can all agree on, other things may be harder to. It's good to keep this diversity in mind when evaluating any project. 
 
-## What do these things provide, tho?
-
-- Custom elements provide scoped styles and organization
-- Template literals provide dynamic markup
-- Void tags provide brevity
-- Inline events provide clarity
-- Minimal boilerplate provide efficiency
-- Small base class size provides extensibility and maintainability
-
 # Our manifesto
 
 We want to build something that works for you. Or, rather, *some* of you; but not *all* of you. 
