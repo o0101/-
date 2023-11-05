@@ -37,7 +37,7 @@ Finally, we support void custom elements in templated values, and automatically 
 
 ## How can I learn even more
 
-Study the examples in [docs/index.html](index.html) to fully learn the current system. Ask questions in [issues](issues) if you need more help!
+Study the examples in [docs/index.html](docs/index.html) to fully learn the current system. Ask questions in [issues](issues) if you need more help!
 
 # Inspirations aka *I'd like to thank the Academy...*
 
