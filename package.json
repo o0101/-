@@ -4,7 +4,7 @@
   "description": "\"Hyphen - custom elements for the new age\"",
   "main": "-.js",
   "scripts": {
-    "test": "serve --ssl-cert ~/sslcerts/fullchain.pem --ssl-key ~/sslcerts/privkey.pem -p 8080"
+    "test": "serve --ssl-cert ~/sslcerts/fullchain.pem --ssl-key ~/sslcerts/privkey.pem -p 8080 docs/"
   },
   "repository": {
     "type": "git",

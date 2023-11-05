@@ -26,20 +26,10 @@
     }
   }
 
-  {
-    customElements.define('cool-el', Cool);
-    const m = document.createElement('cool-el');
-    m.setAttribute('max', 25);
-    m.state  = {
-      myWords: 'hi i am word',
-      myProgress: 11
-    }
-    document.addEventListener('DOMContentLoaded', () => {
-      document.body.appendChild(m);
-    });
-  }
+  customElements.define('cool-el', Cool);
 </script>
-<script> // example 2
+<script> 
+  // example 2
   class Button extends $ {
     constructor() {
       super();
@@ -64,7 +54,7 @@
       const {state} = this;
 
       if ( ! state.target ) {
-        state.target = document.querySelector('cool-el');
+        state.target = querySelector(this, 'cool-el');
       }
 
       state.count++; 
@@ -87,11 +77,22 @@
     }
   }
 
-  {
-    customElements.define('button-el', Button);
-    const m = document.createElement('button-el');
-    document.addEventListener('DOMContentLoaded', () => {
-      document.body.appendChild(m);
-    });
+  customElements.define('button-el', Button);
+</script>
+<script>
+  class App extends $ {
+    template() {
+      return `
+        <cool-el max=25 state='{"myProgress":10,"myWords":"hi i am world"}'></cool-el>
+        <button-el></button-el>
+      `;
+    }
   }
+
+  customElements.define('app-el', App);
+
+  const app = document.createElement('app-el');
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.appendChild(app);
+  });
 </script>

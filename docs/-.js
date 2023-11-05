@@ -6,6 +6,11 @@
       return ['state', ...(this.attrs ? Array.from(this.attrs).map(attr => attr.name) : [])];
     }
 
+    // override in your element if needed
+    static get attrs() {
+      return [];
+    }
+
     constructor(state) {
       super(state);
       this.shadow = this.attachShadow({ mode: 'open' });
@@ -27,8 +32,16 @@
 
     syncAttributesToProps() {
       for (const attribute of this.attributes) {
-        const propName = attributeToProperty(attribute.name);
-        this[propName] = attribute.value;
+        if ( attribute.name == 'state' ) {
+          try { 
+            this.state = JSON.parse(attribute.value);
+          } catch(e) {
+            this.state = attribute.value;
+          }
+        } else {
+          const propName = attributeToProperty(attribute.name);
+          this[propName] = attribute.value;
+        }
       }
     }
 
@@ -57,7 +70,6 @@
             return this.getAttribute(attr);
           },
           set(value) {
-            // If the value is null or undefined, remove the attribute
             if (value == null) {
               this.removeAttribute(attr);
             } else {
@@ -95,21 +107,16 @@
       const handlerRegex = /\s(on\w+)=['"]?(?!this\.getRootNode\(\)\.host\.)([^\s('";>/]+)(?:\([^)]*\))?;?['"]?/g;
       const voidElementRegex = /<(\w+)([^>]*)\/>/g;
 
-      // First preprocess event handlers
       templateString = templateString.replace(handlerRegex, (match, event, handlerName) => {
-        // Check if the handler name is a function on the current element
         if (typeof this[handlerName] === 'function') {
-          // Construct the replacement with a bound method call and proper quotes
           const quote = "'";
           return ` ${event}=${quote}this.getRootNode().host.${handlerName}(event)${quote}`;
         } else {
-          // If the function doesn't exist, throw an error or handle accordingly
           console.error(`Handler function '${handlerName}' not found in element`);
-          return match; // or throw new Error(...) if you prefer
+          return match; 
         }
       });
 
-      // Then expand void elements
       return templateString.replace(voidElementRegex, '<$1$2></$1>');
     }
   }
@@ -122,17 +129,37 @@
     }
   }
 
-  // If needed, modify global name here too
   Object.defineProperty(globalThis, '$', {
     get() {
       return $;
     }
   });
 
-  // Change the tag name to match the class name or something appropriate
-  globalThis.customElements.define('custom-el', $);
+  globalThis.customElements.define('hyph-en', $);
 
   // helpers
+    function querySelector(startElement, selector) {
+      let currentNode = startElement.getRootNode();
+      let result = null;
+
+      while (currentNode) {
+        result = currentNode.querySelector(selector);
+
+        if (result) break;
+
+        if (currentNode instanceof ShadowRoot) {
+          currentNode = currentNode.host.getRootNode();
+        } else if (currentNode == document) {
+          break;
+        } else {
+          console.warn(`Weird currentNode`, currentNode);
+          break;
+        }
+      }
+
+      return result;
+    }
+
     function attributeToProperty(attributeName) {
       return attributeName.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
     }
