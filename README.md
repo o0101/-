@@ -15,13 +15,17 @@ It's important to remember that what constitutes great ergonomics, like great sp
 
 # Introduction and Code Example
 
-## Overview
+## Non-technical Introduction
 
-Hyphen empowers developers by simplifying the creation and management of custom web components with a robust base class. 
+Hyphen is a client-side JavaScript file that helps web developers easily make and manage custom parts of a website, like buttons or menus, without dealing with complicated code. 
 
-It enhances developer ergonomics through seamless state and property synchronization and intuitive template definitions. 
+It makes the usual tricky parts of web development simpler so that developers can build websites faster and with less hassle.
 
-By simply encapsulating the complexity of attribute observation and shadow DOM rendering, Hyphen allows you to declare behavior and structure in a more declarative and concise way.
+## Developer Overview
+
+Hyphen simplifies the creation of custom Web Components, which are a standard for reusable user interface elements for web pages. 
+
+It does this by providing developers with a base class that streamlines the integration of state management and templating, thus addressing common challenges such as verbose syntax and complex lifecycle handling typically associated with native custom elements.
 
 Hyphen is also very short, making it easy to build on as a custom element base for your applications.
 
