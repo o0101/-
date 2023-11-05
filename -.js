@@ -105,7 +105,7 @@
 
     preprocessTemplate(templateString) {
       const handlerRegex = /\s(on\w+)=['"]?(?!this\.getRootNode\(\)\.host\.)([^\s('";>/]+)(?:\([^)]*\))?;?['"]?/g;
-      const voidElementRegex = /<(\w+)([^>]*)\/>/g;
+      const voidElementRegex = /<([\w-]+)\s*([^>]*)\/>/g;
 
       templateString = templateString.replace(handlerRegex, (match, event, handlerName) => {
         if (typeof this[handlerName] === 'function') {
@@ -117,7 +117,9 @@
         }
       });
 
-      return templateString.replace(voidElementRegex, '<$1$2></$1>');
+      return templateString.replace(voidElementRegex, (match, tagName, tagBody) => {
+        return `<${tagName} ${tagBody}></${tagName}>`;
+      });
     }
   }
 
