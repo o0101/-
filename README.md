@@ -47,13 +47,17 @@ Hyphen is inspired by:
 - Brutal.js
 - Good.html
 - VanillaView
-- Decades of coding experience and knowing what we want
+- Years of coding experience and knowing what we want
 
 # Bonus Section Just for Creatives
 
 ## I'd like to contribute! What can I do?
 
 Please consider adding some more examples to index.html. Examples are essential for learning about Hyphen, filling bugs and adding features.
+
+Another way to contribute is to browse current issues. 
+
+### General Contribution Guidelines
 
 In general, empathize with others and remember this is a meritocracy of ideas, yet with clear goals. 
 
