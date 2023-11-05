@@ -60,9 +60,11 @@ We use:
 - regex to parse inline handlers and void tags
 - `with` and `eval` for magic templating
 
-Some people consider them dangerous and want to outlaw their use. We consider them powerful and useful ways to simplify our code and deliver great ergonomics. 
+Some people consider them dangerous and want to outlaw their use. We consider them powerful and useful. 
 
-## *Begun, the flame war has* 
+`with`, `eval` and regex are ways to simplify our code and deliver great ergonomics. 
+
+### *Begun, the flame war has* 
 
 Pick your side, we don't care. What we do care about tho, is good developer experience. 
 
