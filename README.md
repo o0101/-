@@ -5,7 +5,7 @@ Hyphen - A custom element base class for great developer ergonomics.
 ## What great developer ergonomics?
 
 - `<custom-elements>`
-- ``` `${template}<literals` ``` 
+- ``` `${template} literals` ``` 
 - `<void-tags />`
 - `inline=events`
 - Minimal boilerplate 
