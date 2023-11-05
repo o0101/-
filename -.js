@@ -62,7 +62,6 @@
           setTimeout(() => {
             this[propName] = newValue;
             this.render();
-            console.log('rendered');
            }, 0);
         }
       }
