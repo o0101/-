@@ -1,0 +1,27 @@
+{
+  "name": "-",
+  "version": "0.0.1",
+  "description": "\"Hyphen - custom elements for the new age\"",
+  "main": "-.js",
+  "scripts": {
+    "test": "serve --ssl-cert ~/sslcerts/fullchain.pem --ssl-key ~/sslcerts/privkey.pem -p 8080"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/00000o1/-.git"
+  },
+  "keywords": [
+    "hyphen",
+    "custom",
+    "elements"
+  ],
+  "author": "@dosy",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/00000o1/-/issues"
+  },
+  "homepage": "https://github.com/00000o1/-#readme",
+  "devDependencies": {
+    "serve": "latest"
+  }
+}

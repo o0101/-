@@ -1,0 +1,92 @@
+<script src=-.js></script>
+<script>
+</script>
+<script>
+  // example 1
+  class Cool extends $ {
+    showAlert(event) {
+      console.log('event', event);
+      alert('got an event');
+    }
+
+    showPos(mouseMove) {
+      const {clientX,clientY} = mouseMove;
+      console.log({clientX,clientY});
+    }
+
+    template() {
+      return `
+        <progress value=${myProgress} max=${host.max} onclick=showAlert(event);></progress>
+        <p onpointermove=showPos>${myWords}</p>
+      `;
+    }
+  }
+
+  {
+    customElements.define('cool-el', Cool);
+    const m = document.createElement('cool-el');
+    m.setAttribute('max', 25);
+    m.state  = {
+      myWords: 'hi i am word',
+      myProgress: 11
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.appendChild(m);
+    });
+  }
+</script>
+<script> // example 2
+  class Button extends $ {
+    constructor() {
+      super();
+      const target = document.querySelector('cool-el');
+
+      let state;
+
+      if ( target ) {
+        const originalCount = target?.state?.myProgress;
+        state = {
+          count: originalCount,
+          target
+        }
+      } else {
+        state = { count: 0 };
+      }
+
+      this.state = state;
+    }
+
+    changeState() {
+      const {state} = this;
+
+      if ( ! state.target ) {
+        state.target = document.querySelector('cool-el');
+      }
+
+      state.count++; 
+
+      if ( state.count > state.target.max ) {
+        state.count = 0;
+      }
+
+      state.target.state = Object.assign(state.target.state, {
+        myProgress: state.count
+      });
+
+      this.state = state;
+    }
+
+    template() {
+      return `
+        <button onclick=changeState>You Have Clicked Me ${count} Times</button>
+      `;
+    }
+  }
+  {
+    customElements.define('button-el', Button);
+    const m = document.createElement('button-el');
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.appendChild(m);
+    });
+  }
+</script>
