@@ -1,2 +1,2 @@
 # -
-Hyphen - A custom element library for templating. With void tags and declarative events.
+Hyphen - A custom element base class for templating. With void tags and declarative events.
