@@ -35,6 +35,10 @@ For events you use inline event handler syntax, with some syntactic sugar to let
 
 Finally, we support void custom elements in templated values, and automatically expand these to their correct final form with end tags.
 
+## How can I learn even more
+
+Study the examples in [docs/index.html](index.html) to fully learn the current system. Ask questions in [issues](issues) if you need more help!
+
 # Inspirations aka *I'd like to thank the Academy...*
 
 Hyphen is inspired by:
@@ -56,6 +60,14 @@ Hyphen is inspired by:
 Please consider adding some more examples to index.html. Examples are essential for learning about Hyphen, filling bugs and adding features.
 
 Another way to contribute is to browse current issues. 
+
+### Setting up the dev environment
+
+1. Clone the repo.
+2. Run npm i
+3. Run npm test
+
+*Note:* npm test may fail if you don't have localhost certificates. You could make these with letsencrypt, but you can easily just run `server -p 8080` to run a dev server on 8080.
 
 ### General Contribution Guidelines
 
