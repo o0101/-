@@ -4,14 +4,23 @@ Hyphen - A custom element base class for great developer ergonomics.
 
 ## What great developer ergonomics?
 
-- Custom elements for scoped styles and organization
-- Template literals for dynamic markup
-- Void tags for brevity
-- Inline events for clarity
-- Minimal boilerplate for efficiency
-- Small base class size for extensibility and maintainability
-
+- Custom elements 
+- Templating literals 
+- Void tags 
+- Inline events 
+- Minimal boilerplate 
+- Small class size
+  
 It's important to remember that what constitutes great ergonomics, like great sports car seats, varies for individuals. While there may be some things we can all agree on, other things may be harder to. It's good to keep this diversity in mind when evaluating any project. 
+
+## What do these things provide, tho?
+
+- Custom elements provide scoped styles and organization
+- Template literals provide dynamic markup
+- Void tags provide brevity
+- Inline events provide clarity
+- Minimal boilerplate provide efficiency
+- Small base class size provides extensibility and maintainability
 
 # Our manifesto
 
@@ -49,9 +58,21 @@ Hyphen is inspired by:
 - VanillaView
 - Decades of coding experience and knowing what we want
 
+# Bonus Section Just for Creatives
+
+## I'd like to contribute! What can I do?
+
+Please consider adding some more examples to index.html. Examples are essential for learning about Hyphen, filling bugs and adding features.
+
+In general, empathize with others and remember this is a meritocracy of ideas, yet with clear goals. 
+
+We may reject your ideas because they don't align with our aesthetics and ergonomics, but that doesn't mean your ideas are "bad". 
+
+If your ideas are good and support our goals, we gladly include them!
+
 ----
 
-# Bonus Section Just for Meanies
+# The Upside-Down aka Bonus Section Just for Meanies
 
 ## I'm preparing to comment about this and want to be mean, what's the bad news?
 
@@ -73,6 +94,8 @@ Plus, it's kind of fun to flirt with danger now and then, don't you think? Where
 ##  I'm unsatisfied that the above is sufficiently negative, what other bad news can you give me?
 
 This is in alpha. You probably don't want to use it for production unless you can handle the risk. You can help imporve it's stability with constructive and respectful pull requests and issues. 
+
+----
 
 # Bonus Section for Acolytes and True Believers
 
