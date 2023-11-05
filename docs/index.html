@@ -4,6 +4,10 @@
 <script>
   // example 1
   class Cool extends $ {
+    get attrs() {
+      return ['max'];
+    }
+
     showAlert(event) {
       console.log('event', event);
       alert('got an event');
@@ -82,6 +86,7 @@
       `;
     }
   }
+
   {
     customElements.define('button-el', Button);
     const m = document.createElement('button-el');
