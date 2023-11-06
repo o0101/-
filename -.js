@@ -138,6 +138,16 @@
   $.prototype.getTemplate = function() {
     this.state['__'] = this.constructor.name;
     this.state.host = this;
+
+    /*
+    return new Function(
+      ...Object.keys(this.state), `
+      return (function ${this.template.toString()
+        .replace(/^\s*function\s+/,'')
+      }())
+    `)(...Object.values(this.state));
+    */
+
     with (this.state) {
       return eval(`(function ${this.template.toString().replace(/^\s*function\s+/,'')}())`);
     }

@@ -130,7 +130,7 @@ Hyphen is inspired by:
 - Brutal.js
 - Good.html
 - VanillaView
-- Years of coding experience and knowing what we want
+- Decades of coding experience and knowing what we want
 
 # Bonus Section Just for Creatives
 
