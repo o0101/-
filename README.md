@@ -13,6 +13,37 @@ Hyphen - A custom element base class for great developer ergonomics.
   
 It's important to remember that what constitutes great ergonomics, like great sports car seats, varies for individuals. While there may be some things we can all agree on, other things may be harder to. It's good to keep this diversity in mind when evaluating any project. 
 
+------------
+
+# Table of Contents
+
+- [What Great Developer Ergonomics?](#what-great-developer-ergonomics)
+- [Introduction and Code Example](#introduction-and-code-example)
+  - [Non-technical Introduction](#non-technical-introduction)
+  - [Developer Overview](#developer-overview)
+  - [Example Code](#example-code)
+- [Our Manifesto](#our-manifesto)
+- [Why Use Hyphen and How to Use It?](#why-use-hyphen-and-how-to-use-it)
+  - [How Can I Learn Even More](#how-can-i-learn-even-more)
+- [Inspirations](#inspirations-aka-id-like-to-thank-the-academy)
+- [Documentation](#documentation)
+  - [Getting Started with Hyphen](#getting-started-with-hyphen)
+  - [API Overview](#api-overview)
+  - [Advanced Usage](#advanced-usage)
+  - [Examples](#examples)
+  - [Contribution](#contribution)
+- [Bonus Section Just for Creatives](#bonus-section-just-for-creatives)
+  - [I'd Like to Contribute! What Can I Do?](#id-like-to-contribute-what-can-i-do)
+  - [Setting Up the Dev Environment](#setting-up-the-dev-environment)
+  - [General Contribution Guidelines](#general-contribution-guidelines)
+- [The Upside-Down aka Bonus Section Just for Meanies](#the-upside-down-aka-bonus-section-just-for-meanies)
+  - [I'm Preparing to Comment About This and Want to Be Mean, What's the Bad News?](#im-preparing-to-comment-about-this-and-want-to-be-mean-whats-the-bad-news)
+  - [I'm Unsatisfied That the Above Is Sufficiently Negative, What Other Bad News Can You Give Me?](#im-unsatisfied-that-the-above-is-sufficiently-negative-what-other-bad-news-can-you-give-me)
+- [Bonus Section for Acolytes and True Believers](#bonus-section-for-acolytes-and-true-believers)
+  - [I Have Decided to Pledge My Life to Your Cause and Throw Everything I've Got on Your Bandwagon. How Can I Best Organize?](#i-have-decided-to-pledge-my-life-to-your-cause-and-throw-everything-ive-got-on-your-bandwagon-how-can-i-best-organize)
+
+--------------
+
 # Introduction and Code Example
 
 ## Non-technical Introduction
