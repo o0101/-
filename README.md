@@ -26,6 +26,7 @@ It's important to remember that what constitutes great ergonomics, like great sp
 - [Why Use Hyphen and How to Use It?](#why-use-hyphen-and-how-to-use-it)
   - [How Can I Learn Even More](#how-can-i-learn-even-more)
 - [Inspirations](#inspirations-aka-id-like-to-thank-the-academy)
+- [Hot Tips](#hot-tips)
 - [Documentation](#documentation)
   - [Getting Started with Hyphen](#getting-started-with-hyphen)
   - [API Overview](#api-overview)
@@ -162,6 +163,56 @@ Hyphen is inspired by:
 - Good.html
 - VanillaView
 - Decades of coding experience and knowing what we want
+Absolutely, taking inspiration from the React documentation for clarity and simplicity, here's a revised "Hot Tips" section for your README:
+
+## Hot Tips
+
+Dive into these essential tidbits to make the most of Hyphen's features:
+
+#### State Merging
+
+Hyphen uses a merging strategy for state updates:
+
+```javascript
+this.state = { newProperty: 'newValue' };
+```
+
+When you update `this.state`, Hyphen combines your changes with the existing state. This merge behavior ensures that only the properties you specify are updated, while all others remain untouched.
+
+#### Asynchronous Properties
+
+Properties and attributes are linked, but they update asynchronously to prevent infinite loops:
+
+```javascript
+el.setAttribute('my-attr', 'value'); // el.myAttr will update on the next tick
+el.myAttr = 'new value';            // the attribute updates immediately
+```
+
+Treat these updates as asynchronous to avoid timing issues. Setting the attribute schedules the property update for the next tick, whereas updating the property reflects immediately on the attribute.
+
+#### Distinguishing State from Properties
+
+State is internal and should be managed differently from attributes or properties:
+
+```javascript
+// To update the state and trigger a re-render
+this.state = { myKey: 'myNewValue' };
+```
+
+Modifying `this.state` directly won't cause a re-render. To update, you must set `this.state` to a new object, which is typically done with `Object.assign`.
+
+#### Content Security Policy (CSP)
+
+Hyphen relies on `eval` and inline event handlers, which require certain CSP exceptions:
+
+```html
+<!-- Add this to your HTML header to allow inline scripts and eval -->
+<meta http-equiv="Content-Security-Policy" content="script-src 'unsafe-inline' 'unsafe-eval';">
+```
+
+We understand these requirements might not fit all security policies, but they are currently essential for Hyphen's operation.
+
+These tips are geared to help you swiftly navigate the intricacies of Hyphen and craft impressive custom elements with both finesse and ease.
 
 ## Documentation
 
