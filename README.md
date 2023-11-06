@@ -179,7 +179,7 @@ Plus, it's kind of fun to flirt with danger now and then, don't you think? Where
 
 ##  I'm unsatisfied that the above is sufficiently negative, what other bad news can you give me?
 
-This is in alpha. You probably don't want to use it for production unless you can handle the risk. You can help imporve it's stability with constructive and respectful pull requests and issues. 
+This is in alpha. You probably don't want to use it for production unless you can handle the risk. You can help improve it's stability with constructive and respectful pull requests and issues. 
 
 ----
 
