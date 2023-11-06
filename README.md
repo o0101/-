@@ -15,7 +15,7 @@ It's important to remember that what constitutes great ergonomics, like great sp
 
 ------------
 
-# Table of Contents
+## Table of Contents
 
 - [What Great Developer Ergonomics?](#what-great-developer-ergonomics)
 - [Introduction and Code Example](#introduction-and-code-example)
@@ -44,15 +44,15 @@ It's important to remember that what constitutes great ergonomics, like great sp
 
 --------------
 
-# Introduction and Code Example
+## Introduction and Code Example
 
-## Non-technical Introduction
+### Non-technical Introduction
 
 Hyphen is a client-side JavaScript file that helps web developers easily make and manage custom parts of a website, like buttons or menus, without dealing with complicated code. 
 
 It makes the usual tricky parts of web development simpler so that developers can build websites faster and with less hassle.
 
-## Developer Overview
+### Developer Overview
 
 Hyphen simplifies the creation of custom Web Components, which are a standard for reusable user interface elements for web pages. 
 
@@ -60,7 +60,7 @@ It does this by providing developers with a base class that streamlines the inte
 
 Hyphen is also very short, making it easy to build on as a custom element base for your applications.
 
-## Example Code
+### Example Code
 
 In this example, we create a `MyGreeting` element that uses Hyphen's base class to manage its state and respond to user interactions. 
 
@@ -123,7 +123,7 @@ This element displays a greeting message that changes when the button is clicked
 
 With Hyphen, you get a streamlined workflow for your custom elements where the usual complexities are handled for you. 
 
-# Our manifesto
+## Our manifesto
 
 We want to build something that works for you. Or, rather, *some* of you; but not *all* of you. 
 
@@ -133,7 +133,7 @@ However, if you care enough to be passionate, then please use or contribute if y
 
 Either way, please be respectful and considerate to anyone you're dealing with.
 
-# Why use Hyphen and how to use Hyphen? 
+## Why use Hyphen and how to use Hyphen? 
 
 The aim is to minify the keystrokes required to use custom elements, while providing other great ergonomics, too. 
 
@@ -149,7 +149,7 @@ Finally, we support void custom elements in templated values, and automatically 
 
 Study the examples in [index.html](index.html) to fully learn the current system. Ask questions in [issues](issues) if you need more help!
 
-# Inspirations aka *I'd like to thank the Academy...*
+## Inspirations aka *I'd like to thank the Academy...*
 
 Hyphen is inspired by:
 
@@ -163,7 +163,158 @@ Hyphen is inspired by:
 - VanillaView
 - Decades of coding experience and knowing what we want
 
-# Bonus Section Just for Creatives
+## Documentation
+
+Welcome to the Hyphen documentation! This section will guide you through the essentials of utilizing the Hyphen base class to create dynamic, state-managed custom elements for your web applications.
+
+### Getting Started with Hyphen
+
+Hyphen is designed to be intuitive and easy to use, helping developers create custom elements with ease. Let's dive into how you can start integrating Hyphen into your projects.
+
+#### Installation
+
+First, ensure you have the `-.js` file included in your project.
+
+```html
+<script src="path_to_your_assets/-.js"></script>
+```
+
+#### Creating a New Custom Element
+
+To create a new custom element with Hyphen, extend the base class `$` and define your element as shown below:
+
+```javascript
+class YourCustomElement extends $ {
+  // Optional: Define observed attributes for property synchronization
+  static get attrs() {
+    return ['your', 'observed', 'attributes'];
+  }
+
+  // Optional: Define a unique name for your element (must be lowercase)
+  static get elName() {
+    return 'your-custom-element';
+  }
+
+  // Optional: Define initial state
+  constructor(initialState) {
+    super(initialState);
+  }
+
+  // Define your element's HTML template as a string
+  template() {
+    return `
+      <div>Your custom element's template goes here</div>
+    `;
+  }
+}
+
+// Don't forget to register your element
+YourCustomElement.link();
+```
+
+### API Overview
+
+#### `link()`
+
+Registers the custom element with the browser. It automatically uses the `elName` defined in your class or defaults to the class name transformed to lowercase with `-el` appended.
+
+```javascript
+YourCustomElement.link();
+```
+
+#### `new()`
+
+Creates and returns a new instance of the custom element. This is a shortcut to avoid calling `document.createElement()` directly.
+
+```javascript
+const instance = YourCustomElement.new();
+```
+
+#### `template()`
+
+Override this method to define the inner HTML template for your custom element. It should return a string literal.
+
+```javascript
+template() {
+  return `<div>Template content</div>`;
+}
+```
+
+#### `render()`
+
+This method processes the template and updates the shadow DOM with the new content. It's automatically called when the element is connected to the DOM or when its state changes.
+
+#### State Management
+
+The state of your custom element can be managed via the `state` getter and setter.
+
+```javascript
+// To set state
+this.state = { key: 'value' };
+
+// To access state
+console.log(this.state.key);
+```
+
+### Advanced Usage
+
+#### Attributes and Properties
+
+Attributes defined in `attrs()` will be observed and synchronized with the corresponding properties.
+
+```javascript
+// Define observed attributes
+static get attrs() {
+  return ['data-example'];
+}
+
+// Access an attribute as a property
+console.log(this.dataExample);
+```
+
+#### Dynamic Template Processing
+
+Hyphen supports inline event handlers and dynamically expands void custom elements within templates.
+
+```javascript
+template() {
+  return `
+    <my-button onclick="handleClick">Click me!</my-button>
+    <input-el /> <!-- will expand to <input-el></input-el> -->
+  `;
+}
+```
+
+### Examples
+
+Refer to the provided example snippets in the context to see Hyphen in action. Analyzing and experimenting with these examples will solidify your understanding of how to leverage Hyphen effectively in your projects.
+
+### Contribution
+
+Passionate about Hyphen? Contributions are welcome! Whether it's adding examples, reporting bugs, or proposing features—your input helps Hyphen grow.
+
+#### Development Setup
+
+1. Fork and clone the repository.
+2. Navigate to the cloned directory and install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. To run tests:
+
+   ```bash
+   npm test
+   ```
+
+### Conclusion
+
+Hyphen empowers developers to create custom elements effortlessly, focusing on what matters most: bringing your creative visions to life. Happy coding!
+
+---
+
+## Bonus Section Just for Creatives
 
 ## I'd like to contribute! What can I do?
 
@@ -189,9 +340,9 @@ If your ideas are good and support our goals, we gladly include them!
 
 ----
 
-# The Upside-Down aka Bonus Section Just for Meanies
+## The Upside-Down aka Bonus Section Just for Meanies
 
-## I'm preparing to comment about this and want to be mean, what's the bad news?
+### I'm preparing to comment about this and want to be mean, what's the bad news?
 
 We use:
 
@@ -202,21 +353,21 @@ Some people consider them dangerous and want to outlaw their use. We consider th
 
 `with`, `eval` and regex are ways to simplify our code and deliver great ergonomics. 
 
-### *Begun, the flame war has* 
+#### *Begun, the flame war has* 
 
 Pick your side, we don't care. What we do care about tho, is good developer experience. 
 
 Plus, it's kind of fun to flirt with danger now and then, don't you think? Where's your spice of life? 🌶️ 
 
-##  I'm unsatisfied that the above is sufficiently negative, what other bad news can you give me?
+###  I'm unsatisfied that the above is sufficiently negative, what other bad news can you give me?
 
 This is in alpha. You probably don't want to use it for production unless you can handle the risk. You can help improve it's stability with constructive and respectful pull requests and issues. 
 
 ----
 
-# Bonus Section for Acolytes and True Believers
+## Bonus Section for Acolytes and True Believers
 
-## I have decided to pledge my life to your cause and throw everything I've got on your bandwagon. How can I best organize?
+### I have decided to pledge my life to your cause and throw everything I've got on your bandwagon. How can I best organize?
 
 We're not a cult and not looking for recruits, sorry. If you're passionate enough to care, contribute! 
 
