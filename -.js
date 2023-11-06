@@ -1,5 +1,6 @@
 {
   const $state = Symbol(`[[state]]`);
+  const $linked = Symbol(`[[linked]]`);
 
   class $ extends HTMLElement {
     static get observedAttributes() {
@@ -9,6 +10,23 @@
     // override in your element if needed
     static get attrs() {
       return [];
+    }
+
+    // override in your element if needed (remember it must be lowercase)
+    static get elName() {
+      return `${this.name.toLocaleLowerCase()}-el`;
+    }
+
+    static link() {
+      if ( ! this[$linked] ) {
+        this[$linked] = true;
+        customElements.define(this.elName, this);
+      }
+    }
+
+    static new() {
+      if ( ! this[$linked] ) this.link();
+      return document.createElement(this.elName);
     }
 
     constructor(state) {

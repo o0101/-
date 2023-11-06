@@ -29,7 +29,7 @@
     }
   }
 
-  customElements.define('cool-el', Cool);
+  Cool.link();
 </script>
 <script> 
   // example 2
@@ -80,21 +80,25 @@
     }
   }
 
-  customElements.define('button-el', Button);
+  Button.link();
 </script>
 <script>
   class App extends $ {
     template() {
       return `
+        <h1>Embedded Example</h1>
         <cool-el max=25 state='{"myProgress":10,"myWords":"hi i am world"}'/>
         <button-el />
+        <h1>Other examples</h1>
+        <ul>
+          <li><a href=examples/greeting.html>Greeting</a>
+        </ul>
       `;
     }
   }
 
-  customElements.define('app-el', App);
+  const app = App.new();
 
-  const app = document.createElement('app-el');
   document.addEventListener('DOMContentLoaded', () => {
     document.body.appendChild(app);
   });
