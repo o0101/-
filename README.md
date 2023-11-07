@@ -198,7 +198,7 @@ State is internal and should be managed differently from attributes or propertie
 this.state = { myKey: 'myNewValue' };
 ```
 
-Modifying `this.state` directly won't cause a re-render. To update, you must set `this.state` to a new object, which is typically done with `Object.assign`.
+Modifying `this.state` directly won't cause a re-render. To update, you must set `this.state` to a new object, which is typically done with `this.state = { ...myStateUpdates }`.
 
 #### Content Security Policy (CSP)
 
@@ -240,7 +240,7 @@ class YourCustomElement extends $ {
     return ['your', 'observed', 'attributes'];
   }
 
-  // Optional: Define a unique name for your element (must be lowercase)
+  // Optional: Define a unique name for your element (must be lowercase, and contain a hyphen '-')
   static get elName() {
     return 'your-custom-element';
   }
@@ -286,9 +286,11 @@ Override this method to define the inner HTML template for your custom element. 
 
 ```javascript
 template() {
-  return `<div>Template content</div>`;
+  return `<div>Template content: ${myContent}</div>`;
 }
 ```
+
+Properties of `this.state` are used unprefixed in the template. State properties used in the template but undefined will raise an error.
 
 #### `render()`
 
@@ -327,6 +329,11 @@ console.log(this.dataExample);
 Hyphen supports inline event handlers and dynamically expands void custom elements within templates.
 
 ```javascript
+
+handleClick(clickEvent) {
+  console.log('Somebody clicked something', clickEvent);
+}
+
 template() {
   return `
     <my-button onclick="handleClick">Click me!</my-button>
@@ -335,9 +342,13 @@ template() {
 }
 ```
 
+Inline event handlers are defined on your custom element class, and referenced with a shorthand syntax that can omit everything except the name. `onclick=handleClick` is preprocessed to `this.getRootNode().host.handleClick(event);`
+
+`onclick=handleClick(event)` is also valid, as is wrapping the attributes value in `'` or `"` quotes.
+
 ### Examples
 
-Refer to the provided example snippets in the context to see Hyphen in action. Analyzing and experimenting with these examples will solidify your understanding of how to leverage Hyphen effectively in your projects.
+Refer to the provided [example snippets](examples/) or the [index.html](index.html) to see Hyphen in action. Analyzing and experimenting with these examples will solidify your understanding of how to leverage Hyphen effectively in your projects.
 
 ### Contribution
 
