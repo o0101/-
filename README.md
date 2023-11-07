@@ -10,7 +10,7 @@ Hyphen - A custom element base class for great developer ergonomics.
 - ``` `${template} literals` ``` 
 - `<void-tags />`
 - `inline=events`
-- Minimal boilerplate 
+- Minimal keystrokes 
 - Small class size
   
 It's important to remember that what constitutes great ergonomics, like great sports car seats, varies for individuals. While there may be some things we can all agree on, other things may be harder to. It's good to keep this diversity in mind when evaluating any project. 
