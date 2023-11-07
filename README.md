@@ -379,7 +379,7 @@ Hyphen empowers developers to create custom elements effortlessly, focusing on w
 
 ## I'd like to contribute! What can I do?
 
-Please consider adding some more examples to index.html. Examples are essential for learning about Hyphen, filling bugs and adding features.
+Please consider adding some more examples to [`index.html`](index.html) or [`examples/`](examples). Examples are essential for learning about Hyphen, filling bugs and adding features.
 
 Another way to contribute is to browse current issues. 
 
@@ -433,8 +433,4 @@ This is in alpha. You probably don't want to use it for production unless you ca
 We're not a cult and not looking for recruits, sorry. If you're passionate enough to care, contribute! 
 
 But this is a meritocracy of ideas, yet with clear goals. We may reject your ideas because they don't align with our aesthetics and ergonomics, but that doesn't mean your ideas are "bad". If your ideas are good and support our goals, we gladly include them!
-
-
-
-
 
