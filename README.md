@@ -288,11 +288,13 @@ Override this method to define the inner HTML template for your custom element. 
 
 ```javascript
 template() {
-  return `<div>Template content: ${myContent}</div>`;
+  return `<div>Template content. State property: ${myContent}. Attribute property: ${host.myAttr}</div>`;
 }
 ```
 
 Properties of `this.state` are used unprefixed in the template. State properties used in the template but undefined will raise an error.
+
+Attributes (and their corresponding properties) are prefixed with `host.` in the template. 
 
 #### `render()`
 
