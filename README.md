@@ -2,6 +2,8 @@
 
 Hyphen - A custom element base class for great developer ergonomics. 
 
+**Our overarching goal:** minimal code to provide maximal useful surface area. 
+
 ## What great developer ergonomics?
 
 - `<custom-elements>`
