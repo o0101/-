@@ -163,7 +163,6 @@ Hyphen is inspired by:
 - Good.html
 - VanillaView
 - Decades of coding experience and knowing what we want
-Absolutely, taking inspiration from the React documentation for clarity and simplicity, here's a revised "Hot Tips" section for your README:
 
 ## Hot Tips
 
