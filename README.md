@@ -12,6 +12,8 @@ Hyphen - A custom element base class for great developer ergonomics.
 - `inline=events`
 - Minimal keystrokes 
 - Small class size
+  - 180 lines of code
+  - 1749 **bytes** compressed
   
 It's important to remember that what constitutes great ergonomics, like great sports car seats, varies for individuals. While there may be some things we can all agree on, other things may be harder to. It's good to keep this diversity in mind when evaluating any project. 
 
