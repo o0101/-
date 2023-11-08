@@ -21,10 +21,28 @@
       console.log({clientX,clientY});
     }
 
+    styles() {
+      return `
+        :host {
+          display: block;
+          margin: 16px;
+        }
+        progress {
+          width: 100%;
+          height: 30px;
+        }
+        p {
+          color: #333;
+          font-family: sans-serif;
+        }
+      `;
+    }
+
     template() {
       return `
-        <progress value=${myProgress} max=${host.max} onclick=showAlert(event);></progress>
-        <p onpointermove=showPos>${myWords}</p>
+        <style>${host.styles()}</style>
+        <progress value=${myProgress} max=${host.max} onclick="showAlert(event);"></progress>
+        <p onpointermove="showPos">${myWords}</p>
       `;
     }
   }
