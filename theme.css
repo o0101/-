@@ -1,10 +1,12 @@
-/* theme.css */
 :host {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 16px;
   color: #333;
   background: #fff; /* White background for crisp look */
   box-sizing: border-box; /* Better width management */
+}
+
+h1 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 button  {
@@ -14,9 +16,6 @@ button  {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-}
-
-button {
   background-color: #22DD22; /* Bright green */
   color: white;
 }

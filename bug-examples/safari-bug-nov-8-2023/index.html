@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<script>
+  class SafariBug extends HTMLElement {
+    constructor() {
+      super();
+      this.shadow = this.attachShadow({ mode: 'closed' });
+
+      this.count = 0;
+    }
+
+    connectedCallback() {
+      this.render();
+    }
+
+    render() {
+      this.shadow.innerHTML = `
+        <style>
+          :host {
+            margin: 16px;
+          }
+        </style>
+        <p>I am a bug ${this.count}</p>
+      `;
+    }
+  }
+
+  class SafariBugII extends HTMLElement {
+    constructor() {
+      super();
+      this.shadow = this.attachShadow({ mode: 'closed' });
+    }
+
+    connectedCallback() {
+      this.render();
+    }
+
+    update() {
+      const other = this.getRootNode().querySelector('safari-bug');
+      other.count++;
+      other.render();
+    }
+
+
+    render() {
+      this.shadow.innerHTML = `
+        <button onclick="this.getRootNode().host.update()">Show me the bug! 🐜</button>
+      `;
+    }
+  }
+
+  class SafariBugIII extends HTMLElement {
+    constructor() {
+      super();
+      this.shadow = this.attachShadow({ mode: 'closed' });
+    }
+
+    connectedCallback() {
+      this.render();
+    }
+
+    render() {
+      this.shadow.innerHTML = `
+        <h1>Cute Bug 🐜</h1>
+        <safari-bug></safari-bug>
+        <safari-bugii></safari-bugii>
+      `;
+    }
+  }
+
+  customElements.define('safari-bug', SafariBug);
+  customElements.define('safari-bugii', SafariBugII);
+  customElements.define('safari-bugiii', SafariBugIII);
+</script>
+<safari-bugiii></safari-bugiii>
