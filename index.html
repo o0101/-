@@ -5,9 +5,16 @@
 <meta name=viewport content=width=device-width,initial-scale=1>
 <script src=-.js></script>
 <script>
+  class Themed extends $ {
+    get cssImports() {
+      return ['theme.css'];
+    }
+  }
+</script>
+<script>
   // example 1
-  class Cool extends $ {
-    get attrs() {
+  class Cool extends Themed {
+    static get attrs() {
       return ['max'];
     }
 
@@ -23,8 +30,6 @@
 
     styles() {
       return `
-        /*@import url('theme.css');*/
-
         progress {
           background-color: #e6f7ff; /* Light blue background for progress */
         }
@@ -48,7 +53,7 @@
 </script>
 <script> 
   // example 2
-  class Button extends $ {
+  class Button extends Themed {
     constructor() {
       super();
       const target = document.querySelector('cool-el');
@@ -90,8 +95,6 @@
 
     styles() {
       return `
-        /*@import url('theme.css');*/
-
         button {
           background-color: #3399FF; /* Bright blue */
           color: #fff; /* White text */
@@ -112,11 +115,9 @@
   Button.link();
 </script>
 <script>
-  class App extends $ {
+  class App extends Themed {
     styles() {
       return `
-        /*@import url('theme.css');*/
-
         h1 {
           color: #22DD22; /* Bright green */
         }

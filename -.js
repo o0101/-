@@ -5,6 +5,8 @@
   class $ extends HTMLElement {
     /* this prevents an initial FOUC in most cases when component is first rendered */
     #isFirstRender = true;
+    #cssImportsContent = '';
+    #cssImportTimeout = 5000;
 
     static get observedAttributes() {
       return ['state', ...(this.attrs ? this.attrs : [])];
@@ -18,6 +20,15 @@
     // override in your element if needed (remember it must be lowercase)
     static get elName() {
       return `${this.name.toLocaleLowerCase()}-el`;
+    }
+
+    // override in your element if needed
+    // a list of URLs to CSS styles that need to be fetch from the network for your component
+    // for example a CSS reset, a CSS framework or a theme
+    // putting them here rather than in @import rules prevents render-blocking network delays and 
+    // flashes of unstyled content (FoUCs)
+    get cssImports() {
+      return [];
     }
 
     static link() {
@@ -49,69 +60,12 @@
         this[$state] = Object.create(null);
       }
 
-      this.initProperties();
-    }
-
-    syncAttributesToProps() {
-      for (const attribute of this.attributes) {
-        if ( attribute.name == 'state' ) {
-          try { 
-            this.state = JSON.parse(attribute.value);
-          } catch(e) {
-            this.state = attribute.value;
-          }
-        } else {
-          const propName = attributeToProperty(attribute.name);
-          this[propName] = attribute.value;
-        }
-      }
-    }
-
-    attributeChangedCallback(name, oldValue, newValue) {
-      if (name === 'state') {
-        let val;
-        try {
-          val = JSON.parse(newValue);
-        } catch (e) {
-          val = newValue;
-        }
-        this.state = val;
-      } else {
-        const propName = attributeToProperty(name);
-        // we need to make the property update async 
-        // otherwise the setter triggers an infinite loop
-        if ( this[propName] != newValue ) {
-          setTimeout(() => {
-            this[propName] = newValue;
-            this.render();
-           }, 0);
-        }
-      }
-    }
-
-    initProperties() {
-      this.constructor.observedAttributes.forEach(attr => {
-        if ( attr == 'state' ) return;
-
-        Object.defineProperty(this, attributeToProperty(attr), {
-          get() {
-            // we don't care about types right now so everything becomes a string
-            return this.getAttribute(attr);
-          },
-          set(value) {
-            if (value == null) {
-              this.removeAttribute(attr);
-            } else {
-              this.setAttribute(attr, value);
-            }
-            this.render();
-          }
-        });
-      });
+      this.#preCacheCSSImports();
+      this.#initProperties();
     }
 
     connectedCallback() {
-      this.syncAttributesToProps();
+      this.#syncAttributesToProps();
       this.render();
     }
 
@@ -138,13 +92,25 @@
       return `<!-- ${__} element's shadow tree HTML -->`;
     }
 
+    get cssImportTimeout() {
+      return this.#cssImportTimeout; 
+    }
+
+    set cssImportTimeout(val) {
+      const number = Number.parseInt(val);
+      this.#cssImportTimeout = Number.isInteger(number) ? number : 5000;
+    }
+
     render() {
       // Set up the temporary element's shadow DOM
+
+      const styleContent = this.#checkForRenderBlockingCSS();
+
       const newContent = `
         <style>
-          ${this.getTemplate(() => this.styles)} 
+          ${styleContent}
         </style>
-        ${this.preprocessTemplate(this.getTemplate(() => this.template))}
+        ${this.#preprocessTemplate(this.getTemplate(() => this.template))}
       `;
 
       if ( this.#isFirstRender ) {
@@ -161,7 +127,29 @@
       });
     }
 
-    preprocessTemplate(templateString) {
+    attributeChangedCallback(name, oldValue, newValue) {
+      if (name === 'state') {
+        let val;
+        try {
+          val = JSON.parse(newValue);
+        } catch (e) {
+          val = newValue;
+        }
+        this.state = val;
+      } else {
+        const propName = attributeToProperty(name);
+        // we need to make the property update async 
+        // otherwise the setter triggers an infinite loop
+        if ( this[propName] != newValue ) {
+          setTimeout(() => {
+            this[propName] = newValue;
+            this.render();
+           }, 0);
+        }
+      }
+    }
+
+    #preprocessTemplate(templateString) {
       const handlerRegex = /\s(on\w+)=['"]?(?!this\.getRootNode\(\)\.host\.)([^\s('";>/]+)(?:\([^)]*\))?;?['"]?/g;
       const voidElementRegex = /<([\w-]+)\s*([^>]*)\/>/g;
 
@@ -179,18 +167,113 @@
         return `<${tagName} ${tagBody}></${tagName}>`;
       });
     }
+
+    #initProperties() {
+      this.constructor.observedAttributes.forEach(attr => {
+        if ( attr == 'state' ) return;
+
+        Object.defineProperty(this, attributeToProperty(attr), {
+          get() {
+            // we don't care about types right now so everything becomes a string
+            return this.getAttribute(attr);
+          },
+          set(value) {
+            if (value == null) {
+              this.removeAttribute(attr);
+            } else {
+              this.setAttribute(attr, value);
+            }
+            this.render();
+          }
+        });
+      });
+    }
+
+    #syncAttributesToProps() {
+      for (const attribute of this.attributes) {
+        if ( attribute.name == 'state' ) {
+          try { 
+            this.state = JSON.parse(attribute.value);
+          } catch(e) {
+            this.state = attribute.value;
+          }
+        } else {
+          const propName = attributeToProperty(attribute.name);
+          this[propName] = attribute.value;
+        }
+      }
+    }
+
+
+    async #preCacheCSSImports() {
+      const cssImports = this.cssImports;
+      const timeout = this.cssImportTimeout;
+
+      if (cssImports.length > 0) {
+        // Helper function to create a timeout promise
+        const fetchWithTimeout = (url) => {
+          return new Promise((resolve, reject) => {
+            // Set the timeout
+            const timer = setTimeout(() => {
+              reject(new Error(`Request for ${url} timed out`));
+            }, timeout);
+
+            // Start the fetch request
+            fetch(url).then(response => {
+              clearTimeout(timer); // Clear the timeout if the fetch completes in time
+              resolve(response);
+            }, reject); // Forward fetch errors/rejections
+          });
+        };
+
+        const responses = await Promise.allSettled(cssImports.map(fetchWithTimeout));
+        const contentPromisesOrEmpty = responses.map((result, index) => {
+          if (result.status === 'fulfilled') {
+            return result.value.text();  // this is also a promise
+          } else {
+            console.error(`Error loading CSS import from ${cssImports[index]}:`, result.reason);
+            return '';  // Ignore failed requests
+          }
+        });
+
+        // Wait for all text promises to resolve
+        this.#cssImportsContent = (await Promise.all(contentPromisesOrEmpty)).join('\n');
+      }
+    }
+
+    // Method to check for render-blocking CSS calls
+    #checkForRenderBlockingCSS() {
+      const styleContent = `
+        ${this.getTemplate(() => this.#cssImportsContent)}
+        ${this.getTemplate(() => this.styles)}
+      `;
+      const regex = /@import url|@font-face/g;
+      let match;
+      while ((match = regex.exec(styleContent)) !== null) {
+        console.warn(`Warning: render-blocking network call in CSS for element ${this.constructor.elName}: ${match[0]}. 
+        If you need to import CSS files add them to the cssImports array override on your component's Hyphen class.`);
+      }
+      return styleContent;
+    }
   }
 
-  $.prototype.getTemplate = function(funcRef) {
-    if ( typeof funcRef != 'function' ) throw new TypeError(
-      `Provide a function that returns a reference to a function that returns a template string`
+  $.prototype.getTemplate = function(funcGetter) {
+    if ( typeof funcGetter != 'function' ) throw new TypeError(
+      `Provide a function that returns either raw template text (from say a network request or file read) or reference to a function that returns a template string`
     );
+
+    const result = funcGetter();
+    const type = typeof result;
 
     this.state['__'] = this.constructor.name;
     this.state.host = this;
 
     with (this.state) {
-      return eval(`(function ${funcRef().toString().replace(/^\s*function\s+/,'')}())`);
+      if ( type == 'function' ) {
+        return eval(`(function ${funcGetter().toString().replace(/^\s*function\s+/,'')}())`);
+      } else if ( type == 'string' ) {
+        return eval(`(function () { return \`${result}\`; }())`);
+      }
     }
   }
 
