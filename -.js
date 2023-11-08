@@ -3,7 +3,6 @@
   const $linked = Symbol(`[[linked]]`);
 
   class $ extends HTMLElement {
-    /* this prevents an initial FOUC in most cases when component is first rendered */
     #isFirstRender = true;
     #cssImportsContent = '';
     #cssImportTimeout = 5000;
@@ -24,12 +23,8 @@
     }
 
     // override in your element if needed
-    // a list of URLs to CSS styles that need to be fetch from the network for your component
-    // for example a CSS reset, a CSS framework or a theme
-    // putting them here rather than in @import rules prevents render-blocking network delays and 
-    // flashes of unstyled content (FoUCs)
     get cssImports() {
-      return [];
+      return []; // a list of URLs to CSS styles that need to be fetch from the network for your component
     }
 
     static link() {
@@ -139,13 +134,11 @@
         this.state = val;
       } else {
         const propName = attributeToProperty(name);
-        // we need to make the property update async 
-        // otherwise the setter triggers an infinite loop
         if ( this[propName] != newValue ) {
-          setTimeout(() => {
+          setTimeout(() => { // we need to make the property update async otherwise the setter triggers an infinite loop
             this[propName] = newValue;
             this.render();
-           }, 0);
+           }, 0); 
         }
       }
     }
@@ -156,17 +149,14 @@
 
       templateString = templateString.replace(handlerRegex, (match, event, handlerName) => {
         if (typeof this[handlerName] === 'function') {
-          const quote = "'";
-          return ` ${event}=${quote}this.getRootNode().host.${handlerName}(event)${quote}`;
+          return ` ${event}="this.getRootNode().host.${handlerName}(event)"`;
         } else {
           console.error(`Handler function '${handlerName}' not found in element`);
           return match; 
         }
       });
 
-      return templateString.replace(voidElementRegex, (match, tagName, tagBody) => {
-        return `<${tagName} ${tagBody}></${tagName}>`;
-      });
+      return templateString.replace(voidElementRegex, (match, tagName, tagBody) => `<${tagName} ${tagBody}></${tagName}>`);
     }
 
     #initProperties() {
@@ -174,8 +164,7 @@
         if ( attr == 'state' ) return;
 
         Object.defineProperty(this, attributeToProperty(attr), {
-          get() {
-            // we don't care about types right now so everything becomes a string
+          get() {     // we don't care about types right now so everything becomes a string
             return this.getAttribute(attr);
           },
           set(value) {
@@ -213,7 +202,6 @@
       this.#untilCSSFinalized = new Promise(res => notifyFinalized = res);
 
       if (cssImports.length > 0) {
-        // Helper function to create a timeout promise
         const fetchWithTimeout = (url) => {
           return new Promise((resolve, reject) => {
             // Set the timeout
@@ -239,7 +227,6 @@
           }
         });
 
-        // Wait for all text promises to resolve
         this.#cssImportsContent = (await Promise.all(contentPromisesOrEmpty)).join('\n');
         notifyFinalized();
       } else {
@@ -253,7 +240,7 @@
         ${this.getTemplate(() => this.#cssImportsContent)}
         ${this.getTemplate(() => this.styles)}
       `;
-      const regex = /@import url|@font-face/g;
+      const regex = /@import\s+url|@font-face/g;
       let match;
       while ((match = regex.exec(styleContent)) !== null) {
         console.warn(`Warning: render-blocking network call in CSS for element ${this.constructor.elName}: ${match[0]}. 
@@ -289,9 +276,12 @@
     }
   });
 
+  $.querySelector = querySelector;
+
   globalThis.customElements.define('hyph-en', $);
 
   // helpers
+    // find selector anywhere in the document except in any custom element descendents of startElement
     function querySelector(startElement, selector) {
       let currentNode = startElement.getRootNode();
       let result = null;
