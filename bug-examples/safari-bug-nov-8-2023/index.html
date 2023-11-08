@@ -72,3 +72,24 @@
   customElements.define('safari-bugiii', SafariBugIII);
 </script>
 <safari-bugiii></safari-bugiii>
+<hr style="margin: 32px 2px">
+<details>
+  <summary>What's going on here?</summary>
+  <p>There is no code to add the increasing margin that you see. It simply occurs.</p>
+  <dl>
+    <dt>What's required to summon this bug?</dt>
+    <dd>
+      <ul>
+        <li>The custom elements</li>
+        <li><pre>&lt;!DOCTYPE html></pre></li>
+        <li><pre>:host { margin: XXXpx; }</pre> I checked values including 0.1px, 1px, 84px, 999px and all reproduced the bug. 0px did not as did removing this rule.</li>
+      </ul>
+      <p>If you remove any of these, the bug refuses to be conjured.</p>
+    </dd>
+    <dt>What version of Safari was this discovered in?</dt>
+    <dd>
+      I've only checked with Version 17.1 (18616.2.9.11.9, 18616) on Ventura and 
+      Safari on iOS 16.7.2 (20H115). They both reproduce the bug.
+    </dd>
+  </dl>
+</details>
