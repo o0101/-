@@ -23,24 +23,21 @@
 
     styles() {
       return `
-        :host {
-          display: block;
-          margin: 16px;
-        }
+        /*@import url('theme.css');*/
+
         progress {
-          width: 100%;
-          height: 30px;
+          background-color: #e6f7ff; /* Light blue background for progress */
         }
+
         p {
-          color: #333;
-          font-family: sans-serif;
+          color: #32a852; /* A shade of green for paragraph text */
+          margin-top: 10px;
         }
       `;
     }
 
     template() {
       return `
-        <style>${host.styles()}</style>
         <progress value=${myProgress} max=${host.max} onclick="showAlert(event);"></progress>
         <p onpointermove="showPos">${myWords}</p>
       `;
@@ -91,6 +88,20 @@
       this.state = state;
     }
 
+    styles() {
+      return `
+        /*@import url('theme.css');*/
+
+        button {
+          background-color: #3399FF; /* Bright blue */
+          color: #fff; /* White text */
+        }
+        button:hover {
+          background-color: #287bc0; /* Darker blue on hover */
+        }
+      `;
+    }
+
     template() {
       return `
         <button onclick=changeState>You Have Clicked Me ${count} Times</button>
@@ -102,6 +113,19 @@
 </script>
 <script>
   class App extends $ {
+    styles() {
+      return `
+        /*@import url('theme.css');*/
+
+        h1 {
+          color: #22DD22; /* Bright green */
+        }
+        ul {
+          padding-left: 20px;
+        }
+      `;
+    }
+
     template() {
       return `
         <h1>Embedded Example</h1>

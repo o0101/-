@@ -3,6 +3,9 @@
   const $linked = Symbol(`[[linked]]`);
 
   class $ extends HTMLElement {
+    /* this prevents an initial FOUC in most cases when component is first rendered */
+    #isFirstRender = true;
+
     static get observedAttributes() {
       return ['state', ...(this.attrs ? this.attrs : [])];
     }
@@ -33,13 +36,14 @@
       super(state);
       this.shadow = this.attachShadow({ mode: 'open' });
 
+      // set state without render
       if (state) {
-        this.state = state;
+        this[$state] = state;
       } else if (this.hasAttribute('state')) {
         try {
-          this.state = JSON.parse(this.getAttribute('state'));
+          this[$state] = JSON.parse(this.getAttribute('state'));
         } catch (e) {
-          this.state = this.getAttribute('state');
+          this[$state] = this.getAttribute('state');
         }
       } else {
         this[$state] = Object.create(null);
@@ -124,13 +128,37 @@
       return this[$state];
     }
 
-    // override for your element
+    // override for your element if needed
+    styles() {
+      return `/* css styles for :host ${__} element and its shadow tree */`;
+    }
+
+    // override for your element if needed
     template() {
-      return `<!-- ${__} element -->`;
+      return `<!-- ${__} element's shadow tree HTML -->`;
     }
 
     render() {
-      this.shadow.innerHTML = this.preprocessTemplate(this.getTemplate());
+      // Set up the temporary element's shadow DOM
+      const newContent = `
+        <style>
+          ${this.getTemplate(() => this.styles)} 
+        </style>
+        ${this.preprocessTemplate(this.getTemplate(() => this.template))}
+      `;
+
+      if ( this.#isFirstRender ) {
+        this.style.visibility = 'hidden';
+      }
+
+      requestAnimationFrame(() => {
+        this.shadow.innerHTML = newContent;
+
+        if ( this.#isFirstRender ) {
+          requestAnimationFrame(() => this.style.visibility = 'visible');
+          this.#isFirstRender = false;
+        }
+      });
     }
 
     preprocessTemplate(templateString) {
@@ -153,21 +181,16 @@
     }
   }
 
-  $.prototype.getTemplate = function() {
+  $.prototype.getTemplate = function(funcRef) {
+    if ( typeof funcRef != 'function' ) throw new TypeError(
+      `Provide a function that returns a reference to a function that returns a template string`
+    );
+
     this.state['__'] = this.constructor.name;
     this.state.host = this;
 
-    /*
-    return new Function(
-      ...Object.keys(this.state), `
-      return (function ${this.template.toString()
-        .replace(/^\s*function\s+/,'')
-      }())
-    `)(...Object.values(this.state));
-    */
-
     with (this.state) {
-      return eval(`(function ${this.template.toString().replace(/^\s*function\s+/,'')}())`);
+      return eval(`(function ${funcRef().toString().replace(/^\s*function\s+/,'')}())`);
     }
   }
 
