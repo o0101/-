@@ -404,39 +404,3 @@ In general, empathize with others and remember this is a meritocracy of ideas, y
 We may reject your ideas because they don't align with our aesthetics and ergonomics, but that doesn't mean your ideas are "bad". 
 
 If your ideas are good and support our goals, we gladly include them!
-
-----
-
-## The Upside-Down aka Bonus Section Just for Meanies
-
-### I'm preparing to comment about this and want to be mean, what's the bad news?
-
-We use:
-
-- regex to parse inline handlers and void tags
-- `with` and `eval` for magic templating
-
-Some people consider them dangerous and want to outlaw their use. We consider them powerful and useful. 
-
-`with`, `eval` and regex are ways to simplify our code and deliver great ergonomics. 
-
-#### *Begun, the flame war has* 
-
-Pick your side, we don't care. What we do care about tho, is good developer experience. 
-
-Plus, it's kind of fun to flirt with danger now and then, don't you think? Where's your spice of life? 🌶️ 
-
-###  I'm unsatisfied that the above is sufficiently negative, what other bad news can you give me?
-
-This is in alpha. You probably don't want to use it for production unless you can handle the risk. You can help improve it's stability with constructive and respectful pull requests and issues. 
-
-----
-
-## Bonus Section for Acolytes and True Believers
-
-### I have decided to pledge my life to your cause and throw everything I've got on your bandwagon. How can I best organize?
-
-We're not a cult and not looking for recruits, sorry. If you're passionate enough to care, contribute! 
-
-But this is a meritocracy of ideas, yet with clear goals. We may reject your ideas because they don't align with our aesthetics and ergonomics, but that doesn't mean your ideas are "bad". If your ideas are good and support our goals, we gladly include them!
-
