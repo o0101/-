@@ -17,9 +17,13 @@
       return [];
     }
 
-    // override in your element if needed (remember it must be lowercase)
+    // deprecated in favor of tag, but retained for backwards compatibility for now
     static get elName() {
-      return `${this.name.toLocaleLowerCase()}-el`;
+      return this.tag;
+    }
+    // override in your element if needed (remember it must be lowercase)
+    static get tag() {
+      return convertCaseAndName(this.name);
     }
 
     // override in your element if needed
@@ -63,6 +67,17 @@
     connectedCallback() {
       this.#syncAttributesToProps();
       this.render();
+    }
+
+    change(eventName, details = {}) {
+      this.dispatchEvent(new InputEvent('change', {
+        data: JSON.stringify({
+          ...details,
+          eventName
+        }), 
+        composed: true,
+        bubbles: true,
+      }));
     }
 
     set state(newState) {
@@ -144,14 +159,19 @@
     }
 
     #preprocessTemplate(templateString) {
-      const handlerRegex = /\s(on\w+)=['"]?(?!this\.getRootNode\(\)\.host\.)([^\s('";>/]+)(?:\([^)]*\))?;?['"]?/g;
+      const handlerRegex = /\s(on\w+)=['"]?(?!const host = this\.getRootNode\(\)\.host; host\\.)([^\s('";>/]+)(?:\([^)]*\))?;?['"]?/g;
       const voidElementRegex = /<([\w-]+)\s*([^>]*)\/>/g;
 
       templateString = templateString.replace(handlerRegex, (match, event, handlerName) => {
+        //console.log({event, handlerName});
         if (typeof this[handlerName] === 'function') {
-          return ` ${event}="this.getRootNode().host.${handlerName}(event)"`;
+          if ( event == 'onchange' ) { // change is a special custom event for us with inline event handler capabilities
+            return ` ${event}="const host = this.getRootNode().host; host.${handlerName}({...(event.data?JSON.parse(event.data):{}),_package:event,target:event.target}) && (host.state = host.state);"`;
+          } else {
+            return ` ${event}="const host = this.getRootNode().host; host.${handlerName}(event) && (host.state = host.state);"`;
+          }
         } else {
-          console.error(`Handler function '${handlerName}' not found in element`);
+          console.error(`Handler function '${handlerName}' not found in element`, this);
           return match; 
         }
       });
@@ -168,7 +188,7 @@
             return this.getAttribute(attr);
           },
           set(value) {
-            if (value == null) {
+            if (value == null || value == false || value == 'false') {
               this.removeAttribute(attr);
             } else {
               this.setAttribute(attr, value);
@@ -259,13 +279,14 @@
     const type = typeof result;
 
     this.state['__'] = this.constructor.name;
-    this.state.host = this;
+    const host = this;
+    this.state.host = host;
 
     with (this.state) {
       if ( type == 'function' ) {
-        return eval(`(function ${funcGetter().toString().replace(/^\s*function\s+/,'')}())`);
+        return eval(`((function ${funcGetter().toString().replace(/^\s*function\s+/,'')}).bind(host)())`);
       } else if ( type == 'string' ) {
-        return eval(`(function () { return \`${result}\`; }())`);
+        return eval(`((function () { return \`${result}\`; }).bind(host)())`);
       }
     }
   }
@@ -281,6 +302,20 @@
   globalThis.customElements.define('hyph-en', $);
 
   // helpers
+    function convertCaseAndName(inputString) {
+      let cased = inputString
+        // Replace each uppercase letter with a hyphen and the lowercase version of the letter
+        .replace(/([A-Z])/g, '-$1')
+        .toLowerCase()
+        // Remove the leading hyphen if any
+        .replace(/^-/, ''); 
+      const enoughHyphens = cased.includes('-');
+      if ( ! enoughHyphens ) {
+        cased += '-el'
+      }
+      return cased;
+    }
+
     // find selector anywhere in the document except in any custom element descendents of startElement
     function querySelector(startElement, selector) {
       let currentNode = startElement.getRootNode();
