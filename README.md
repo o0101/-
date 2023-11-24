@@ -6,7 +6,7 @@ Hyphen - A custom element base class for great developer ergonomics.
 
 ## Classic Code Example: TodoMVC
 
-Here you can review a case study of creating TodoMVC in Hyphen [using ChatGPT](https://sharegpt.com/c/0PMQgMa]. Also, [here's the single file code](https://github.com/00000o1/-/blob/boss/examples/todomvc.html), and the [live example](https://00000o1.github.io/-/examples/todomvc.html).
+Here you can review a case study of creating TodoMVC in Hyphen [using ChatGPT](https://sharegpt.com/c/0PMQgMa). Also, here's the [single file](https://github.com/00000o1/-/blob/boss/examples/todomvc.html) code, and its [live example](https://00000o1.github.io/-/examples/todomvc.html).
 
 ## What great developer ergonomics?
 
