@@ -12,14 +12,15 @@ Also, here's the [single file](https://github.com/00000o1/-/blob/boss/examples/t
 
 ## What great developer ergonomics?
 
-- `<custom-elements>`
+- `<custom-elements>` inherit from `$` superclass
 - ``` `${template} literals` ``` 
 - `<void-tags />`
 - `inline=events`
 - Minimal keystrokes 
+- Basic `Store` super class
 - Small class size
-  - 263 lines of code
-  - 3003 **bytes** compressed
+  - < 500 lines of code
+  - < 5000 **bytes** compressed
   
 It's important to remember that what constitutes great ergonomics, like great sports car seats, varies for individuals. While there may be some things we can all agree on, other things may be harder to. It's good to keep this diversity in mind when evaluating any project. 
 

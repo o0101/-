@@ -2,6 +2,46 @@
   const $state = Symbol(`[[state]]`);
   const $linked = Symbol(`[[linked]]`);
 
+  class Store {
+    constructor(initialState) {
+      this[$state] = initialState || {};
+      this.subscribers = [];
+    }
+
+    get state() {
+      return this.getState();
+    }
+
+    set state(newState) {
+      this.setState(newState);
+    }
+
+    addSubscriber(subscriber) {
+      this.subscribers.push(subscriber);
+    }
+
+    notifySubscribers() {
+      this.subscribers.forEach(subscriber => {
+        if (typeof subscriber.update === 'function') {
+          subscriber.update();
+        }
+      });
+    }
+
+    sync() {
+      this.notifySubscribers();
+    }
+
+    setState(newState) {
+      this[$state] = { ...this.state, ...newState };
+      this.notifySubscribers();
+    }
+
+    getState() {
+      return this[$state];
+    }
+  }
+
   class $ extends HTMLElement {
     #isFirstRender = true;
     #cssImportsContent = '';
@@ -45,6 +85,9 @@
 
     constructor(state) {
       super(state);
+      if ( globalThis?._$store instanceof Store ) {
+        globalThis._$store.addSubscriber(this);
+      }
       this.shadow = this.attachShadow({ mode: 'open' });
 
       // set state without render
@@ -110,6 +153,16 @@
     set cssImportTimeout(val) {
       const number = Number.parseInt(val);
       this.#cssImportTimeout = Number.isInteger(number) ? number : 5000;
+    }
+
+    // override if you need to set custom behavior
+    beforeUpdate() {
+      
+    }
+
+    update() {
+      this.beforeUpdate();
+      this.state = this.state;
     }
 
     async render() {
@@ -294,6 +347,11 @@
   Object.defineProperty(globalThis, '$', {
     get() {
       return $;
+    }
+  });
+  Object.defineProperty(globalThis, 'Store', {
+    get() {
+      return Store;
     }
   });
 

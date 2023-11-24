@@ -9,57 +9,48 @@
     // TodoMVC in Hyphen. November 23 - 24, 2023
 
     // singleton global store
-    const todoStore = new class TodoStore {
+    const todoStore = globalThis._$store = new class TodoStore extends Store {
       constructor() {
-        this.todos = [];
-        this.filter = 'all';
-        this.subscribers = [];
-      }
-
-      addSubscriber(subscriber) {
-        this.subscribers.push(subscriber);
-      }
-
-      notifySubscribers() {
-        this.subscribers.forEach(subscriber => {
-          subscriber.update();
-          subscriber.state = subscriber.state; // trigger state change and re-render
-        });
+        super({ todos: [], filter: 'all' });
       }
 
       addTodo(text) {
-        this.todos.push({ text, completed: false });
-        this.notifySubscribers();
+        const newTodos = [...this.state.todos, { text, completed: false }];
+        this.setState({ todos: newTodos });
       }
 
       deleteTodo(index) {
-        this.todos.splice(index, 1);
-        this.notifySubscribers();
+        const newTodos = this.state.todos.filter((_, i) => i !== index);
+        this.setState({ todos: newTodos });
       }
 
       toggleComplete(index) {
-        this.todos[index].completed = !this.todos[index].completed;
-        this.notifySubscribers();
+        const newTodos = this.state.todos.map((todo, i) => {
+          if (i === index) {
+            return { ...todo, completed: !todo.completed };
+          }
+          return todo;
+        });
+        this.setState({ todos: newTodos });
       }
 
       filterTodos(filter) {
-        this.filter = filter;
-        this.notifySubscribers();
+        this.setState({ filter });
       }
 
       clearCompleted() {
-        this.todos = this.todos.filter(todo => !todo.completed);
-        this.notifySubscribers();
+        const newTodos = this.state.todos.filter(todo => !todo.completed);
+        this.setState({ todos: newTodos });
       }
 
       getFilteredTodos() {
-        return this.todos.filter(todo => {
-          if (this.filter === 'active') return !todo.completed;
-          if (this.filter === 'completed') return todo.completed;
+        return this.state.todos.filter(todo => {
+          if (this.state.filter === 'active') return !todo.completed;
+          if (this.state.filter === 'completed') return todo.completed;
           return true;
         });
       }
-    };
+    }
 
     class TodoItem extends $ {
       static get attrs() {
@@ -76,7 +67,7 @@
       }
 
       toggleComplete() {
-        todoStore.toggleComplete(this.index);
+        todoStore.toggleComplete(parseInt(this.index));
       }
 
       startEditing() {
@@ -93,12 +84,12 @@
       finishEditing() {
         this.state.editing = false;
         this.text = this.shadow.querySelector('#editor').value;
-        todoStore.todos[this.index].text = this.text;
-        todoStore.notifySubscribers();
+        todoStore.state.todos[this.index].text = this.text;
+        todoStore.sync();
       }
 
       delete() {
-        todoStore.deleteTodo(this.index);
+        todoStore.deleteTodo(parseInt(this.index));
       }
 
       styles() {
@@ -185,13 +176,11 @@
     class TodoList extends $ {
       constructor() {
         super({ todos: [], filter: 'all' });
-        todoStore.addSubscriber(this);
       }
 
-      update() {
+      beforeUpdate() {
         this.state.todos = todoStore.getFilteredTodos();
         this.state.filter = todoStore.filter;
-        this.state = this.state;
       }
 
       addOnEnter(keyup) {
