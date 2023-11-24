@@ -1,48 +1,169 @@
+// singleton global store
+const todoStore = new class TodoStore {
+  constructor() {
+    this.todos = [];
+    this.filter = 'all';
+    this.subscribers = [];
+  }
+
+  addSubscriber(subscriber) {
+    this.subscribers.push(subscriber);
+  }
+
+  notifySubscribers() {
+    this.subscribers.forEach(subscriber => {
+      subscriber.update();
+      subscriber.state = subscriber.state; // trigger state change and re-render
+    });
+  }
+
+  addTodo(text) {
+    this.todos.push({ text, completed: false });
+    this.notifySubscribers();
+  }
+
+  deleteTodo(index) {
+    this.todos.splice(index, 1);
+    this.notifySubscribers();
+  }
+
+  toggleComplete(index) {
+    this.todos[index].completed = !this.todos[index].completed;
+    this.notifySubscribers();
+  }
+
+  filterTodos(filter) {
+    this.filter = filter;
+    this.notifySubscribers();
+  }
+
+  clearCompleted() {
+    this.todos = this.todos.filter(todo => !todo.completed);
+    this.notifySubscribers();
+  }
+
+  getFilteredTodos() {
+    return this.todos.filter(todo => {
+      if (this.filter === 'active') return !todo.completed;
+      if (this.filter === 'completed') return todo.completed;
+      return true;
+    });
+  }
+};
+
 class TodoItem extends $ {
   static get attrs() {
     return ['text', 'completed', 'index'];
   }
 
   constructor() {
-    super({ editing: false, tempText: '' });
+    super({ editing: false, completed: false });
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.state.completed = this.completed;
   }
 
   toggleComplete() {
-    this.completed = !this.completed;
-    return true;
+    todoStore.toggleComplete(this.index);
   }
 
   startEditing() {
     this.state.editing = true;
-    this.state.tempText = this.text;
+    return true;
   }
 
   finishOnEnter(keyup) {
-    if ( keyup.key == 'Enter' ) {
+    if (keyup.key == 'Enter') {
       this.finishEditing();
     }
-    return false;
   }
 
   finishEditing() {
     this.state.editing = false;
-    this.text = this.state.tempText;
+    this.text = this.shadow.querySelector('#editor').value;
+    todoStore.todos[this.index].text = this.text;
+    todoStore.notifySubscribers();
   }
 
   delete() {
-    this.change('delete');
+    todoStore.deleteTodo(this.index);
+  }
+
+  styles() {
+    return `
+      :host {
+        display: block;
+        margin-bottom: 10px;
+      }
+      li {
+        background-color: white;
+        border-radius: 5px;
+        padding: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.3s ease;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      li.completed {
+        background-color: #e6e6e6;
+      }
+      li.completed span {
+        text-decoration: line-through;
+        color: #393939;
+      }
+      li.editing {
+        background-color: #fdfdff;
+      }
+      input[type="checkbox"] {
+        margin-right: 10px;
+      }
+      input[type="text"] {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 100%;
+        box-sizing: border-box;
+        display: none;
+      }
+      li.editing input[type="text"] {
+        display: block;
+      }
+      li:not(.editing) span {
+        display: inline-block;
+      }
+      li.editing span {
+        display: none;
+      }
+      div.display {
+        flex-grow: 1;
+      }
+      button {
+        padding: 6px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        background-color: #007bff;
+        color: white;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+    `;
   }
 
   template() {
-    const checkedClass = this.completed ? 'completed' : '';
-    const editingClass = this.state.editing ? 'editing' : '';
+    const checkedClass = completed ? 'completed' : '';
+    const editingClass = editing ? 'editing' : '';
     return `
       <li class="${checkedClass} ${editingClass}">
-        <div ondblclick="startEditing">
-          <input type="checkbox" ${this.completed ? 'checked' : ''} onclick="toggleComplete">
+        <div class=display ondblclick="startEditing">
+          <input type="checkbox" ${completed ? 'checked' : ''} onclick="toggleComplete">
           <span>${this.text}</span>
         </div>
-        <input type="text" value="${tempText}" onblur="finishEditing" onkeyup="finishOnEnter">
+        <input ${editing ? '' : 'readonly'} id=editor type="text" value="${this.text}" onblur="finishEditing" onkeyup="finishOnEnter">
         <button onclick="delete">Delete</button>
       </li>
     `;
@@ -54,54 +175,101 @@ TodoItem.link();
 class TodoList extends $ {
   constructor() {
     super({ todos: [], filter: 'all' });
+    todoStore.addSubscriber(this);
+  }
+
+  update() {
+    this.state.todos = todoStore.getFilteredTodos();
+    this.state.filter = todoStore.filter;
+    this.state = this.state;
+  }
+
+  addOnEnter(keyup) {
+    if ( keyup.key == 'Enter' ) {
+      this.addTodo();
+    }
   }
 
   addTodo() {
     const text = this.shadow.querySelector('#new-todo').value;
-    this.state.todos.push({ text, completed: false });
-    return true;
-  }
-
-  deleteTodo(change) {
-    if ( change.eventName == 'delete' ) {
-      this.state.todos.splice(change.target.index, 1);
+    if (text.trim()) {
+      todoStore.addTodo(text.trim());
+      this.shadow.querySelector('#new-todo').value = '';
     }
-    return true;
   }
 
-  filterTodos(filter) {
-    this.state.filter = filter;
-    return true;
+  filterCompleted() {
+    todoStore.filterTodos('completed');
+  }
+
+  filterActive() {
+    todoStore.filterTodos('active');
+  }
+
+  filterAll() {
+    todoStore.filterTodos('all');
   }
 
   clearCompleted() {
-    this.state.todos = this.state.todos.filter(todo => !todo.completed);
+    todoStore.clearCompleted();
+  }
+
+  styles() {
+    return `
+      :host {
+        display: flex;
+        flex-direction: column;
+      }
+      main {
+        display: flex;
+      }
+      ul {
+        list-style-type: none;
+        padding: 0;
+      }
+      input[type="text"] {
+        padding: 10px;
+        border: 2px solid dodgerblue;
+        border-radius: 5px;
+        flex-grow: 1;
+        margin-right: 10px;
+      }
+      button {
+        background-color: dodgerblue;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: aquamarine;
+      }
+      .cent {
+        text-align: center;
+      }
+    `;
   }
 
   template() {
-    const filteredTodos = todos.filter(todo => {
-      if (filter === 'active') return !todo.completed;
-      if (filter === 'completed') return todo.completed;
-      return true;
-    });
-
     return `
-      <ul onchange=deleteTodo>
-        ${filteredTodos.map((todo, index) => `
-          <todo-item text="${todo.text}" completed="${todo.completed}" index=${index}></todo-item>
+      <main>
+        <input autofocus type="text" id="new-todo" placeholder="Add a new task" onkeyup=addOnEnter>
+        <button onclick="addTodo">Add</button>
+      </main>
+      <ul>
+        ${this.state.todos.map((todo, index) => `
+          <todo-item text="${todo.text}" completed="${todo.completed}" index="${index}"></todo-item>
         `).join('')}
       </ul>
-      <input type="text" id="new-todo" placeholder="Add a new task">
-      <button onclick="addTodo">Add</button>
-      <div>
-        <button onclick="filterTodos('all')">All</button>
-        <button onclick="filterTodos('active')">Active</button>
-        <button onclick="filterTodos('completed')">Completed</button>
+      <div class=cent>
+        <button onclick="filterAll">All</button>
+        <button onclick="filterActive">Active</button>
+        <button onclick="filterCompleted">Completed</button>
+        <button onclick="clearCompleted">Clear Completed</button>
       </div>
-      <button onclick="clearCompleted">Clear Completed</button>
     `;
   }
 }
 
 TodoList.link();
-

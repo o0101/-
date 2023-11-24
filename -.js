@@ -188,7 +188,7 @@
             return this.getAttribute(attr);
           },
           set(value) {
-            if (value == null || value == false || value == 'false') {
+            if (value == null || value === false || value == 'false') {
               this.removeAttribute(attr);
             } else {
               this.setAttribute(attr, value);
