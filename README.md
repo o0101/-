@@ -4,6 +4,12 @@ Hyphen - A custom element base class for great developer ergonomics.
 
 **Our overarching goal:** using minimal library code and minimal application code, deliver the maximal useful surface area.
 
+## Classic Code Example: TodoMVC
+
+Here you can review a case study of creating TodoMVC in Hyphen [using ChatGPT](https://sharegpt.com/c/0PMQgMa). 
+
+Also, here's the [single file](https://github.com/00000o1/-/blob/boss/examples/todomvc.html) code, and its [live example](https://00000o1.github.io/-/examples/todomvc.html).
+
 ## What great developer ergonomics?
 
 - `<custom-elements>`
