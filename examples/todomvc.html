@@ -285,20 +285,35 @@
     TodoList.link();
   </script>
   <style>
+    :root {
+      font-family: system-ui, sans-serif;
+    }
     body { background: powderblue; }
     footer {
       padding: 0.25rem 1.5rem;
       margin: 2rem 0.5rem 0.5rem 0.5rem;
-      border: medium solid dodgerblue;
+      border: medium solid skyblue;
       border-radius: 0.5rem;
       color: darkgray;
+      text-align: center;
+      font-size: smaller;
+    }
+
+    footer a {
+      color: inherit;
+    }
+
+    footer [cite] {
+      font-size: x-small;
     }
   </style>
 </head>
 <body>
   <todo-list></todo-list>
   <footer>
-    <a href=https://sharegpt.com/c/0PMQgMa>Created (mostly) in ChatGPT</a>
+    <span cite=https://openai.com>Created (mostly) in ChatGPT</span>
+    <br>
+    <a href=https://sharegpt.com/c/0PMQgMa>View the Chat</a>
     <a href=https://github.com/00000o1/->Get the Code</a>
   </footer>
 </body>
