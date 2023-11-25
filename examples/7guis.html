@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name=viewport content=width=device-width,initial-scale=1>
+  <title>TodoMVC with Hyphen</title>
+  <style>
+    :root {
+      font-family: system-ui, sans-serif;
+    }
+
+    footer {
+      padding: 0.25rem 1.5rem;
+      margin: 2rem 0.5rem 0.5rem 0.5rem;
+      border: medium solid skyblue;
+      border-radius: 0.5rem;
+      color: darkgray;
+      text-align: center;
+      font-size: smaller;
+    }
+
+    footer a {
+      color: inherit;
+    }
+
+    footer [cite] {
+      font-size: x-small;
+    }
+  </style>
+  <script src="../-.js"></script>
+  <script>
+    class Counter extends $ {
+      constructor() {
+        super({ count: 0 });
+      }
+
+      increment() {
+        this.state.count++;
+        this.state = this.state;
+      }
+
+      template() {
+        return `
+          <div>
+            <button onclick="increment">Increment</button>
+            <span>${count}</span>
+          </div>
+        `;
+      }
+    }
+
+    Counter.link();
+  </script>
+  <script>
+    class TemperatureConverter extends $ {
+      constructor() {
+        super({ celsius: 0, fahrenheit: 32 });
+      }
+
+      updateCelsius(event) {
+        const value = parseFloat(event.target.value);
+        this.state = {
+          celsius: value,
+          fahrenheit: (value * 9 / 5) + 32,
+        };
+      }
+
+      updateFahrenheit(event) {
+        const value = parseFloat(event.target.value);
+        this.state = {
+          fahrenheit: value,
+          celsius: (value - 32) * 5 / 9,
+        };
+      }
+
+      template() {
+        return `
+          <div>
+            <input type="number" value="${celsius}" onchange="updateCelsius">
+            Celsius =
+            <input type="number" value="${fahrenheit}" onchange="updateFahrenheit">
+            Fahrenheit
+          </div>
+        `;
+      }
+    }
+
+    TemperatureConverter.link();
+  </script>
+  <script>
+    class FlightBooker extends $ {
+      constructor() {
+        super({ tripType: 'one-way', departureDate: '', returnDate: '', isReturnEnabled: false });
+      }
+
+      setOneWay() {
+        this.state.tripType = 'one-way';
+        this.state.isReturnEnabled = false;
+        return true;
+      }
+
+      setRoundTrip() {
+        this.state.tripType = 'round-trip';
+        this.state.isReturnEnabled = true;
+        return true;
+      }
+
+      bookFlight() {
+        const bookingDetails = `Trip Type: ${this.state.tripType}, Departure: ${this.state.departureDate}, Return: ${this.state.isReturnEnabled ? this.state.returnDate : 'N/A'}`;
+        alert(bookingDetails);
+      }
+
+      setDepartureDate(event) {
+        this.state.departureDate = event.target.value;
+        return true;
+      }
+
+      setReturnDate(event) {
+        this.state.returnDate = event.target.value;
+        return true; 
+      }
+
+      template() {
+        return `
+          <div>
+            <input type="radio" name="tripType" value="one-way" ${tripType === 'one-way' ? 'checked' : ''} onchange="setOneWay"> One-way
+            <input type="radio" name="tripType" value="round-trip" ${tripType === 'round-trip' ? 'checked' : ''} onchange="setRoundTrip"> Round-trip
+            <br>
+            <input type="date" value="${departureDate}" onchange="setDepartureDate" >
+            <input type="date" value="${returnDate}" onchange="setReturnDate" ${isReturnEnabled ? '' : 'disabled'}>
+            <br>
+            <button onclick="bookFlight">Book Flight</button>
+          </div>
+        `;
+      }
+    }
+
+    FlightBooker.link();
+  </script>
+  <script>
+    class Timer extends $ {
+      constructor() {
+        super({ duration: 60, remaining: 60, timerId: null });
+      }
+
+      setDuration(event) {
+        this.state.duration = parseInt(event.target.value);
+        this.state.remaining = this.state.duration;
+        return true;
+      }
+
+      startTimer() {
+        if (this.state.timerId) {
+          clearInterval(this.state.timerId);
+        }
+
+        this.state.remaining = this.state.duration;
+        this.state.timerId = setInterval(() => {
+          if (this.state.remaining > 0) {
+            this.state.remaining--;
+            this.state = this.state;  // Trigger re-render
+          } else {
+            clearInterval(this.state.timerId);
+          }
+        }, 1000);
+        return true;
+      }
+
+      template() {
+        return `
+          <div>
+            <input type="number" value="${duration}" onchange="setDuration">
+            <button onclick="startTimer">Start</button>
+            <div>Time remaining: ${remaining} seconds</div>
+          </div>
+        `;
+      }
+    }
+
+    Timer.link();
+  </script>
+  <script>
+    class CRUD extends $ {
+      constructor() {
+        super({ entries: ['Alice', 'Bob', 'Charlie'], selectedEntry: null, editText: '' });
+      }
+
+      selectEntry(event) {
+        const index = parseInt(event.target.getAttribute('index'));
+        this.state.selectedEntry = index;
+        this.state.editText = this.state.entries[index];
+        return true;
+      }
+
+      updateText(event) {
+        this.state.editText = event.target.value;
+      }
+
+      createEntry() {
+        this.state.entries.push(this.state.editText);
+        this.state.editText = '';
+        return true;
+      }
+
+      updateEntry() {
+        if (this.state.selectedEntry !== null) {
+          this.state.entries[this.state.selectedEntry] = this.state.editText;
+        }
+        return true;
+      }
+
+      deleteEntry() {
+        if (this.state.selectedEntry !== null) {
+          this.state.entries.splice(this.state.selectedEntry, 1);
+          this.state.editText = '';
+          this.state.selectedEntry = null;
+        }
+        return true;
+      }
+
+      template() {
+        return `
+          <div>
+            <ul>
+              ${entries.map((entry, index) => `
+                <li index=${index} onclick="selectEntry">${entry}</li>
+              `).join('')}
+            </ul>
+            <input type="text" value="${editText}" oninput="updateText">
+            <button onclick="createEntry">Create</button>
+            <button onclick="updateEntry">Update</button>
+            <button onclick="deleteEntry">Delete</button>
+          </div>
+        `;
+      }
+    }
+
+    CRUD.link();
+  </script>
+</head>
+<body>
+  <counter-el></counter-el>
+  <temperature-converter></temperature-converter>
+  <flight-booker></flight-booker>
+  <timer-el></timer-el>
+  <c-r-u-d></c-r-u-d>
+  <footer>
+    <span cite=https://openai.com>Created (mostly) in ChatGPT</span>
+    <br>
+    <a href=https://sharegpt.com/c/0PMQgMa>View the Chat</a>
+    <a href=https://github.com/00000o1/->Get the Code</a>
+  </footer>
+</body>
+</html>
+
