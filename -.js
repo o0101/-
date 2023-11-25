@@ -166,6 +166,8 @@
     }
 
     async render() {
+      let resolve;
+      const pr = new Promise(res => resolve = res);
       await this.#untilCSSFinalized;
 
       const styleContent = this.#checkForRenderBlockingCSS();
@@ -185,10 +187,17 @@
         this.shadow.innerHTML = newContent;
 
         if ( this.#isFirstRender ) {
-          requestAnimationFrame(() => this.style.visibility = 'visible');
+          requestAnimationFrame(() => {
+            this.style.visibility = 'visible';
+            resolve();
+          });
           this.#isFirstRender = false;
+        } else {
+          resolve();
         }
       });
+
+      return pr;
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
