@@ -237,6 +237,108 @@
 
     CRUD.link();
   </script>
+  <script>
+    class CircleDrawer extends $ {
+      constructor() {
+        super({ circles: [], undoStack: [], redoStack: [] });
+      }
+
+      async render() {
+        await super.render();
+        this.canvas = this.shadow.querySelector('canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.renderCircles();
+      }
+
+      drawCircle(event) {
+        const rect = this.canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        this.state.circles.push({ x, y, radius: 10 }); // Example radius
+        this.state.undoStack.push(this.state.circles.slice()); // Copy for undo
+        this.state.redoStack = []; // Clear redo stack
+        return true;
+      }
+
+      undo() {
+        if (this.state.undoStack.length > 0) {
+          this.state.redoStack.push(this.state.circles.slice());
+          this.state.circles = this.state.undoStack.pop();
+        }
+        return true;
+      }
+
+      redo() {
+        if (this.state.redoStack.length > 0) {
+          this.state.undoStack.push(this.state.circles.slice());
+          this.state.circles = this.state.redoStack.pop();
+        }
+        return true;
+      }
+
+      renderCircles() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // Clear canvas
+        this.state.circles.forEach(circle => {
+          this.ctx.beginPath();
+          this.ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI);
+          this.ctx.fill();
+        });
+      }
+
+      template() {
+        return `
+          <div>
+            <canvas onclick="drawCircle" width="300" height="300" style="border: thin solid dodgerblue;"></canvas>
+            <button onclick="undo">Undo</button>
+            <button onclick="redo">Redo</button>
+          </div>
+        `;
+      }
+    }
+
+    CircleDrawer.link();
+  </script>
+  <script>
+    class Cells extends $ {
+      constructor() {
+        super({ data: null });
+        this.state.data = this.createEmptyGrid(10, 10);
+      }
+
+      createEmptyGrid(rows, cols) {
+        return Array.from({ length: rows }, () => Array(cols).fill(''));
+      }
+
+      updateCell(row, col, value) {
+        this.state.data[row][col] = value;
+        // Add logic to re-evaluate dependent cells here
+        return true;
+      }
+
+      evaluateFormula(formula) {
+        // Basic formula evaluation logic here
+        // Example: '=A1+B2' should be interpreted and values added
+      }
+
+      template() {
+        return `
+          <table>
+            ${this.state.data.map((row, rowIndex) => `
+              <tr>
+                ${row.map((cell, colIndex) => `
+                  <td>
+                    <input type="text" value="${cell}" onchange="updateCell(${rowIndex}, ${colIndex}, this.value)">
+                  </td>
+                `).join('')}
+              </tr>
+            `).join('')}
+          </table>
+        `;
+      }
+    }
+
+    Cells.link();
+  </script>
 </head>
 <body>
   <counter-el></counter-el>
@@ -244,6 +346,8 @@
   <flight-booker></flight-booker>
   <timer-el></timer-el>
   <c-r-u-d></c-r-u-d>
+  <circle-drawer></circle-drawer>
+  <cells-el></cells-el>
   <footer>
     <span cite=https://openai.com>Created (mostly) in ChatGPT</span>
     <br>
