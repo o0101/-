@@ -1,6 +1,10 @@
 {
   const $state = Symbol(`[[state]]`);
   const $linked = Symbol(`[[linked]]`);
+  const DEBUG = false; // Set to false to disable debug logging
+  const WITHOUT = false; // True for not using eval and with but rather 
+  // new Function stuff pointed out here: https://news.ycombinator.com/item?id=38153053
+  const linkedClassNames = new Map(); // To keep track of already linked classes
 
   class Store {
     constructor(initialState) {
@@ -42,11 +46,15 @@
     }
   }
 
-  class $ extends HTMLElement {
+  class Hyphen extends HTMLElement {
     #isFirstRender = true;
     #cssImportsContent = '';
     #cssImportTimeout = 5000;
     #untilCSSFinalized = 0;
+
+    static get $() {
+      return subclassDetector(this, this.onSubclassed);
+    }
 
     static get observedAttributes() {
       return ['state', ...(this.attrs ? this.attrs : [])];
@@ -66,21 +74,81 @@
       return convertCaseAndName(this.name);
     }
 
-    // override in your element if needed
-    get cssImports() {
-      return []; // a list of URLs to CSS styles that need to be fetch from the network for your component
-    }
-
     static link() {
-      if ( ! this[$linked] ) {
-        this[$linked] = true;
+      if ( ! this.hasOwnProperty($linked) ) {
+        this[$linked] = this.elName;
         customElements.define(this.elName, this);
       }
     }
 
     static new() {
-      if ( ! this[$linked] ) this.link();
+      if ( ! this.hasOwnProperty($linked) ) this.link();
       return document.createElement(this.elName);
+    }
+
+
+    static async onSubclassed(cls) {
+      const e = new Error();
+      const stackLine = e.stack.split(/\n/g).map(line => line.trim()).filter(line => line.length).pop();
+      let found = false;
+
+      // Split from the end to get line and index
+      const parts = stackLine.split(/:(?=\d+:\d+$)/);
+      if (parts.length === 2) {
+        const [urlContainer, ...[line, col]] = [parts[0], ...parts[1].split(':')];
+
+        // Now extract URL from the container
+        const urlMatch = urlContainer.match(/(https?:\/\/[^\s]+)/);
+        if (urlMatch) {
+          const url = urlMatch[0];
+          DEBUG && console.info({ url, line, col });
+
+          try {
+            const response = await fetch(url);
+            const text = await response.text();
+            const lineContent = text.split(/\n/g)[line - 1];
+
+            // Working backwards from the column to find the class declaration
+            const classDeclarationStartIndex = Math.max(0, col - 100); // Example: 100 characters back
+            DEBUG && console.info(col, classDeclarationStartIndex, lineContent);
+            const snippet = lineContent.slice(classDeclarationStartIndex);
+
+            const classNameMatch = /class\s+(\w+)\s+extends/.exec(snippet);
+            if (classNameMatch) {
+              const className = classNameMatch[1];
+              if (!linkedClassNames.has(className)) {
+                if ( WITHOUT ) {
+                  globalThis.names = (globalThis.names || {});
+                  const classObj = (new Function(`return ${className};`))();
+                  linkedClassNames.set(className, classObj);
+                  DEBUG && console.log(`New Subclass of ${cls.name}: ${classObj.name}`);
+                  DEBUG && console.log(`Calling link to bind custom element to DOM registry`);
+                  classObj.link();
+                  found = true;
+                } else {
+                  const classObj = eval(className);
+                  linkedClassNames.set(className, classObj);
+                  DEBUG && console.log(`New Subclass of ${cls.name}: ${classObj.name}`);
+                  DEBUG && console.log(`Calling link to bind custom element to DOM registry`);
+                  classObj.link();
+                  found = true;
+                }
+              }
+            } else {
+              DEBUG && console.warn(`Subclass name could not be extracted`);
+            }
+          } catch (error) {
+            DEBUG && console.warn("Error fetching or parsing class source:", error);
+          }
+        } else {
+          DEBUG && console.warn("Could not extract URL from the source string.");
+        }
+      } else {
+        DEBUG && console.warn("Could not parse the source string into URL, line, and index.");
+      }
+      if ( ! found ) {
+        console.log("Subclass name could not be detected, you may need to explicitly call <SubClass>.link() to register it for Custom Elements to work.");
+      }
     }
 
     constructor(state) {
@@ -106,6 +174,12 @@
       this.#preCacheCSSImports();
       this.#initProperties();
     }
+
+    // override in your element if needed
+    get cssImports() {
+      return []; // a list of URLs to CSS styles that need to be fetch from the network for your component
+    }
+
 
     connectedCallback() {
       this.#syncAttributesToProps();
@@ -332,7 +406,7 @@
     }
   }
 
-  $.prototype.getTemplate = function(funcGetter) {
+  Hyphen.prototype.getTemplate = function(funcGetter) {
     if ( typeof funcGetter != 'function' ) throw new TypeError(
       `Provide a function that returns either raw template text (from say a network request or file read) or reference to a function that returns a template string`
     );
@@ -344,18 +418,37 @@
     const host = this;
     this.state.host = host;
 
-    with (this.state) {
+    if ( WITHOUT ) {
       if ( type == 'function' ) {
-        return eval(`((function ${funcGetter().toString().replace(/^\s*function\s+/,'')}).bind(host)())`);
-      } else if ( type == 'string' ) {
-        return eval(`((function () { return \`${result}\`; }).bind(host)())`);
+        return new Function(
+          ...Object.keys(this.state), `
+            return ((function ${
+              funcGetter().toString()
+                .replace(/^\s*function\s+/,'')
+            }).bind(host)())
+        `)(...Object.values(this.state));
+      } else {
+        return new Function(
+          ...Object.keys(this.state), `
+            return ((function () { return \`${result}\`; }).bind(host)())
+        `)(...Object.values(this.state));
+      }
+    } else {
+      with (this.state) {
+        if ( type == 'function' ) {
+          return eval(`((function ${funcGetter().toString().replace(/^\s*function\s+/,'')}).bind(host)())`);
+        } else if ( type == 'string' ) {
+          return eval(`((function () { return \`${result}\`; }).bind(host)())`);
+        }
       }
     }
   }
 
+  const h = subclassDetector(Hyphen, Hyphen.onSubclassed);
+
   Object.defineProperty(globalThis, '$', {
     get() {
-      return $;
+      return h;
     }
   });
   Object.defineProperty(globalThis, 'Store', {
@@ -364,23 +457,55 @@
     }
   });
 
-  $.querySelector = querySelector;
-
-  globalThis.customElements.define('hyph-en', $);
+  Hyphen.querySelector = querySelector;
 
   // helpers
+    function subclassDetector(superclass, onSubclassed) {
+      const subclassProxy = new Proxy(superclass, {
+        get(target, prop, receiver) {
+          if (prop === 'prototype') {
+            try {
+              onSubclassed(target);
+            } catch(e) {
+              console.warn(`Error during prototype getter intercept: exception occurred during onSubclassed handler`, e, onSubclassed);
+            }
+          }
+          return Reflect.get(target, prop, receiver);
+        },
+        apply(target, thisArg, argumentsList) {
+          // Assume the first argument is the class to be subclassed
+          if (argumentsList.length > 0 && typeof argumentsList[0] === 'function') {
+            const subclass = argumentsList[0];
+            return subclassDetector(subclass, subclass.onSubclassed);
+          }
+          throw new Error('Invalid usage of subclassDetector: Expected a class as argument');
+        }
+      });
+
+      return subclassProxy;
+    }
+
     function convertCaseAndName(inputString) {
-      let cased = inputString
-        // Replace each uppercase letter with a hyphen and the lowercase version of the letter
-        .replace(/([A-Z])/g, '-$1')
-        .toLowerCase()
-        // Remove the leading hyphen if any
-        .replace(/^-/, ''); 
-      const enoughHyphens = cased.includes('-');
-      if ( ! enoughHyphens ) {
-        cased += '-el'
+      // Check if the string is all uppercase
+      let hyphenCount = 0;
+
+      let result = '';
+      for (let i = 0; i < inputString.length; i++) {
+        const char = inputString[i];
+        const nextChar = inputString[i + 1];
+        // If it's an uppercase character
+        if (char === char.toUpperCase() && char !== char.toLowerCase()) {
+          // If it's not the first character and the next character is lowercase, add a hyphen
+          if (i > 0 && nextChar && nextChar === nextChar.toLowerCase()) {
+            result += '-';
+            hyphenCount++;
+          }
+          result += char.toLowerCase();
+        } else {
+          result += char;
+        }
       }
-      return cased;
+      return hyphenCount ? result : result + '-el';
     }
 
     // find selector anywhere in the document except in any custom element descendents of startElement
