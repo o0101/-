@@ -42,15 +42,11 @@
     }
   }
 
-  class $ extends HTMLElement {
+  class Hyphen extends HTMLElement {
     #isFirstRender = true;
     #cssImportsContent = '';
     #cssImportTimeout = 5000;
     #untilCSSFinalized = 0;
-
-    static {
-      this.link();
-    }
 
     static get observedAttributes() {
       return ['state', ...(this.attrs ? this.attrs : [])];
@@ -70,11 +66,6 @@
       return convertCaseAndName(this.name);
     }
 
-    // override in your element if needed
-    get cssImports() {
-      return []; // a list of URLs to CSS styles that need to be fetch from the network for your component
-    }
-
     static link() {
       if ( ! this[$linked] ) {
         this[$linked] = true;
@@ -85,6 +76,40 @@
     static new() {
       if ( ! this[$linked] ) this.link();
       return document.createElement(this.elName);
+    }
+
+    static async onSubclassed(cls) {
+      const e = new Error();
+      const stackLine = e.stack.split(/\n/g).map(line => line.trim()).filter(line => line.length).pop();
+
+
+      // Split from the end to get line and index
+      const parts = stackLine.split(/:(?=\d+:\d+$)/);
+      if (parts.length === 2) {
+        const [urlContainer, ...[line, index]] = [parts[0], ...parts[1].split(':')];
+
+        // Now extract URL from the container
+        const urlMatch = urlContainer.match(/(https?:\/\/[^\s]+)/);
+        if (urlMatch) {
+          const url = urlMatch[0];
+          //console.log({ url, line, index });
+          let classDeclare;
+          await fetch(url).then(r => r.text()).then(t => classDeclare = t.split(/\n/g)[line-1]);
+          const classNameMatch = classDeclare.match(/\s*class\s+(\w+)\s+extends\s+/);
+          if ( classNameMatch ) {
+            const className = classNameMatch[1];
+            const classObj = eval(className);
+            //console.log(classObj);
+            console.log(`New Subclass of ${cls.name}: ${classObj.name}`);
+            console.log(`Calling link to bind custom element to DOM registry`);
+            classObj.link();
+          }
+        } else {
+          console.log("Could not extract URL from the source string.");
+        }
+      } else {
+        console.log("Could not parse the source string into URL, line, and index.");
+      }
     }
 
     constructor(state) {
@@ -110,6 +135,12 @@
       this.#preCacheCSSImports();
       this.#initProperties();
     }
+
+    // override in your element if needed
+    get cssImports() {
+      return []; // a list of URLs to CSS styles that need to be fetch from the network for your component
+    }
+
 
     connectedCallback() {
       this.#syncAttributesToProps();
@@ -336,7 +367,7 @@
     }
   }
 
-  $.prototype.getTemplate = function(funcGetter) {
+  Hyphen.prototype.getTemplate = function(funcGetter) {
     if ( typeof funcGetter != 'function' ) throw new TypeError(
       `Provide a function that returns either raw template text (from say a network request or file read) or reference to a function that returns a template string`
     );
@@ -357,9 +388,11 @@
     }
   }
 
+  const h = subclassDetector(Hyphen, Hyphen.onSubclassed);
+
   Object.defineProperty(globalThis, '$', {
     get() {
-      return $;
+      return h;
     }
   });
   Object.defineProperty(globalThis, 'Store', {
@@ -368,9 +401,24 @@
     }
   });
 
-  $.querySelector = querySelector;
+  Hyphen.querySelector = querySelector;
 
   // helpers
+    function subclassDetector(superclass, onSubclassed) {
+      return new Proxy(superclass, {
+        get(target, prop, receiver) {
+          if (prop === 'prototype') {
+            try {
+              onSubclassed(target, prop, receiver);
+            } catch(e) {
+              console.warn(`Error during prototype getter intercept: exception occured during onSubclassed handler`, e, onSubclassed);
+            }
+          }
+          return Reflect.get(target, prop, receiver);
+        }
+      });
+    }
+
     function convertCaseAndName(inputString) {
       // Check if the string is all uppercase
       let hyphenCount = 0;
