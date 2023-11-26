@@ -32,8 +32,32 @@ After much tinkering, we unveiled `subclassDetector`, a sleek addition to Hyphen
 ```javascript
 function subclassDetector(superclass, onSubclassed) {
   // Clever Proxy logic resides here
+  const subclassProxy = new Proxy(superclass, {
+    get(target, prop, receiver) {
+      if (prop === 'prototype') {
+        try {
+          onSubclassed(target);
+        } catch(e) {
+          console.warn(`Error during prototype getter intercept: exception occurred during onSubclassed handler`, e, onSubclassed);
+        }
+      }
+      return Reflect.get(target, prop, receiver);
+    },
+    apply(target, thisArg, argumentsList) {
+      // Assume the first argument is the class to be subclassed
+      if (argumentsList.length > 0 && typeof argumentsList[0] === 'function') {
+        const subclass = argumentsList[0];
+        return subclassDetector(subclass, subclass.onSubclassed);
+      }
+      throw new Error('Invalid usage of subclassDetector: Expected a class as argument');
+    }
+  });
+
+  return subclassProxy;
 }
 ```
+
+The Hyphen base class (that you inherit from when creating all your Custom Elements) implements `onSubclassed`.
 
 ### The Hyphen Way
 
