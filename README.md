@@ -268,22 +268,21 @@ class YourCustomElement extends $ {
     `;
   }
 }
-
-// Don't forget to register your element
-YourCustomElement.link();
 ```
 
 ### API Overview
 
-#### `link()`
+Element names automatically take the snake-case form of the TitleCased class names you define them with. So:
 
-Registers the custom element with the browser. It automatically uses the `elName` defined in your class or defaults to the class name transformed to lowercase with `-el` appended.
+```js
+class BigBuddha extends $
 
-```javascript
-YourCustomElement.link();
+//is used as
+
+<big-buddha></big-buddha>
 ```
 
-#### `new()`
+#### `<class>.new()`
 
 Creates and returns a new instance of the custom element. This is a shortcut to avoid calling `document.createElement()` directly.
 
@@ -291,7 +290,7 @@ Creates and returns a new instance of the custom element. This is a shortcut to 
 const instance = YourCustomElement.new();
 ```
 
-#### `template()`
+#### `<instance>.template()`
 
 Override this method to define the inner HTML template for your custom element. It should return a string literal.
 
@@ -305,9 +304,17 @@ Properties of `this.state` are used unprefixed in the template. State properties
 
 Attributes (and their corresponding properties) are prefixed with `host.` in the template. 
 
-#### `render()`
+#### `<instance>.render()`
 
 This method processes the template and updates the shadow DOM with the new content. It's automatically called when the element is connected to the DOM or when its state changes.
+
+#### `link()`
+
+Registers the custom element with the browser, although normally this shouldn't be necessary as we automatically detect subclassing and call this at the time your custom element class is declared, as [described here](posts/classy-magic.md)
+
+```javascript
+YourCustomElement.link();
+``
 
 #### State Management
 
