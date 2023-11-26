@@ -66,7 +66,7 @@ function subclassDetector(superclass, onSubclassed) {
 }
 ```
 
-The Hyphen base class (that you inherit from when creating all your Custom Elements) implements `onSubclassed`.
+The Hyphen base class (that you inherit from when creating all your Custom Elements) implements `onSubclassed`, which uses Error stack traces to pin down the call location and regex to extract the classname being declared.
 
 ### The Hyphen Way
 
