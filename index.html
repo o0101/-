@@ -11,7 +11,7 @@
 </script>
 <script>
   // example 1
-  class Cool extends Themed {
+  class Cool extends $(Themed) {
     static get attrs() {
       return ['max'];
     }
@@ -48,7 +48,7 @@
 </script>
 <script> 
   // example 2
-  class Button extends Themed {
+  class Button extends Themed.$ {
     constructor() {
       super();
       const target = document.querySelector('cool-el');
@@ -143,6 +143,7 @@
   const app = App.new();
 
   document.addEventListener('DOMContentLoaded', () => {
+    customElements.upgrade(app);
     document.body.appendChild(app);
   });
 </script>

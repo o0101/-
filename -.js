@@ -1,6 +1,10 @@
 {
   const $state = Symbol(`[[state]]`);
   const $linked = Symbol(`[[linked]]`);
+  const DEBUG = false; // Set to false to disable debug logging
+  const WITHOUT = false; // True for not using eval and with but rather 
+  // new Function stuff pointed out here: https://news.ycombinator.com/item?id=38153053
+  const linkedClassNames = new Map(); // To keep track of already linked classes
 
   class Store {
     constructor(initialState) {
@@ -48,6 +52,10 @@
     #cssImportTimeout = 5000;
     #untilCSSFinalized = 0;
 
+    static get $() {
+      return subclassDetector(this, this.onSubclassed);
+    }
+
     static get observedAttributes() {
       return ['state', ...(this.attrs ? this.attrs : [])];
     }
@@ -67,48 +75,79 @@
     }
 
     static link() {
-      if ( ! this[$linked] ) {
-        this[$linked] = true;
+      if ( ! this.hasOwnProperty($linked) ) {
+        this[$linked] = this.elName;
         customElements.define(this.elName, this);
       }
     }
 
     static new() {
-      if ( ! this[$linked] ) this.link();
+      if ( ! this.hasOwnProperty($linked) ) this.link();
       return document.createElement(this.elName);
     }
+
 
     static async onSubclassed(cls) {
       const e = new Error();
       const stackLine = e.stack.split(/\n/g).map(line => line.trim()).filter(line => line.length).pop();
-
+      let found = false;
 
       // Split from the end to get line and index
       const parts = stackLine.split(/:(?=\d+:\d+$)/);
       if (parts.length === 2) {
-        const [urlContainer, ...[line, index]] = [parts[0], ...parts[1].split(':')];
+        const [urlContainer, ...[line, col]] = [parts[0], ...parts[1].split(':')];
 
         // Now extract URL from the container
         const urlMatch = urlContainer.match(/(https?:\/\/[^\s]+)/);
         if (urlMatch) {
           const url = urlMatch[0];
-          //console.log({ url, line, index });
-          let classDeclare;
-          await fetch(url).then(r => r.text()).then(t => classDeclare = t.split(/\n/g)[line-1]);
-          const classNameMatch = classDeclare.match(/\s*class\s+(\w+)\s+extends\s+/);
-          if ( classNameMatch ) {
-            const className = classNameMatch[1];
-            const classObj = eval(className);
-            //console.log(classObj);
-            console.log(`New Subclass of ${cls.name}: ${classObj.name}`);
-            console.log(`Calling link to bind custom element to DOM registry`);
-            classObj.link();
+          DEBUG && console.info({ url, line, col });
+
+          try {
+            const response = await fetch(url);
+            const text = await response.text();
+            const lineContent = text.split(/\n/g)[line - 1];
+
+            // Working backwards from the column to find the class declaration
+            const classDeclarationStartIndex = Math.max(0, col - 100); // Example: 100 characters back
+            DEBUG && console.info(col, classDeclarationStartIndex, lineContent);
+            const snippet = lineContent.slice(classDeclarationStartIndex);
+
+            const classNameMatch = /class\s+(\w+)\s+extends/.exec(snippet);
+            if (classNameMatch) {
+              const className = classNameMatch[1];
+              if (!linkedClassNames.has(className)) {
+                if ( WITHOUT ) {
+                  globalThis.names = (globalThis.names || {});
+                  const classObj = (new Function(`return ${className};`))();
+                  linkedClassNames.set(className, classObj);
+                  DEBUG && console.log(`New Subclass of ${cls.name}: ${classObj.name}`);
+                  DEBUG && console.log(`Calling link to bind custom element to DOM registry`);
+                  classObj.link();
+                  found = true;
+                } else {
+                  const classObj = eval(className);
+                  linkedClassNames.set(className, classObj);
+                  DEBUG && console.log(`New Subclass of ${cls.name}: ${classObj.name}`);
+                  DEBUG && console.log(`Calling link to bind custom element to DOM registry`);
+                  classObj.link();
+                  found = true;
+                }
+              }
+            } else {
+              DEBUG && console.warn(`Subclass name could not be extracted`);
+            }
+          } catch (error) {
+            DEBUG && console.warn("Error fetching or parsing class source:", error);
           }
         } else {
-          console.log("Could not extract URL from the source string.");
+          DEBUG && console.warn("Could not extract URL from the source string.");
         }
       } else {
-        console.log("Could not parse the source string into URL, line, and index.");
+        DEBUG && console.warn("Could not parse the source string into URL, line, and index.");
+      }
+      if ( ! found ) {
+        console.log("Subclass name could not be detected, you may need to explicitly call <SubClass>.link() to register it for Custom Elements to work.");
       }
     }
 
@@ -379,11 +418,28 @@
     const host = this;
     this.state.host = host;
 
-    with (this.state) {
+    if ( WITHOUT ) {
       if ( type == 'function' ) {
-        return eval(`((function ${funcGetter().toString().replace(/^\s*function\s+/,'')}).bind(host)())`);
-      } else if ( type == 'string' ) {
-        return eval(`((function () { return \`${result}\`; }).bind(host)())`);
+        return new Function(
+          ...Object.keys(this.state), `
+            return ((function ${
+              funcGetter().toString()
+                .replace(/^\s*function\s+/,'')
+            }).bind(host)())
+        `)(...Object.values(this.state));
+      } else {
+        return new Function(
+          ...Object.keys(this.state), `
+            return ((function () { return \`${result}\`; }).bind(host)())
+        `)(...Object.values(this.state));
+      }
+    } else {
+      with (this.state) {
+        if ( type == 'function' ) {
+          return eval(`((function ${funcGetter().toString().replace(/^\s*function\s+/,'')}).bind(host)())`);
+        } else if ( type == 'string' ) {
+          return eval(`((function () { return \`${result}\`; }).bind(host)())`);
+        }
       }
     }
   }
@@ -405,18 +461,28 @@
 
   // helpers
     function subclassDetector(superclass, onSubclassed) {
-      return new Proxy(superclass, {
+      const subclassProxy = new Proxy(superclass, {
         get(target, prop, receiver) {
           if (prop === 'prototype') {
             try {
-              onSubclassed(target, prop, receiver);
+              onSubclassed(target);
             } catch(e) {
-              console.warn(`Error during prototype getter intercept: exception occured during onSubclassed handler`, e, onSubclassed);
+              console.warn(`Error during prototype getter intercept: exception occurred during onSubclassed handler`, e, onSubclassed);
             }
           }
           return Reflect.get(target, prop, receiver);
+        },
+        apply(target, thisArg, argumentsList) {
+          // Assume the first argument is the class to be subclassed
+          if (argumentsList.length > 0 && typeof argumentsList[0] === 'function') {
+            const subclass = argumentsList[0];
+            return subclassDetector(subclass, subclass.onSubclassed);
+          }
+          throw new Error('Invalid usage of subclassDetector: Expected a class as argument');
         }
       });
+
+      return subclassProxy;
     }
 
     function convertCaseAndName(inputString) {

@@ -19,8 +19,8 @@ Also, here's the [single file](https://github.com/00000o1/-/blob/boss/examples/t
 - Minimal keystrokes 
 - Basic `Store` super class
 - Small class size
-  - < 500 lines of code
-  - < 5000 **bytes** compressed
+  - ~ 539 lines of code
+  - ~ 5146 **bytes** compressed
   
 It's important to remember that what constitutes great ergonomics, like great sports car seats, varies for individuals. While there may be some things we can all agree on, other things may be harder to. It's good to keep this diversity in mind when evaluating any project. 
 

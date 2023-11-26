@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name=viewport content=width=device-width,initial-scale=1>
-  <title>TodoMVC with Hyphen</title>
+  <title>7GUIs with Hyphen</title>
   <style>
     :root {
       font-family: system-ui, sans-serif;
@@ -152,7 +152,7 @@
         this.state.timerId = setInterval(() => {
           if (this.state.remaining > 0) {
             this.state.remaining--;
-            this.state = this.state;  // Trigger re-render
+            this.state = this.state;  
           } else {
             clearInterval(this.state.timerId);
           }
@@ -244,9 +244,9 @@
         const rect = this.canvas.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
-        this.state.circles.push({ x, y, radius: 10 }); // Example radius
-        this.state.undoStack.push(this.state.circles.slice()); // Copy for undo
-        this.state.redoStack = []; // Clear redo stack
+        this.state.circles.push({ x, y, radius: 10 }); 
+        this.state.undoStack.push(this.state.circles.slice()); 
+        this.state.redoStack = []; 
         return true;
       }
 
@@ -267,7 +267,7 @@
       }
 
       renderCircles() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // Clear canvas
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); 
         this.state.circles.forEach(circle => {
           this.ctx.beginPath();
           this.ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI);
@@ -318,7 +318,6 @@
       }
 
       evaluateFormula(formula) {
-        // Remove the '=' and split by arithmetic operators while keeping them in the result
         const parts = formula.substring(1).replace(/\s+/g, '').split(/([+\-*/])/);
         
         let result = 0;
@@ -326,7 +325,7 @@
 
         for (let part of parts) {
           if (['+', '-', '*', '/'].includes(part)) {
-            currentOp = part; // Update the current operation if an operator is found
+            currentOp = part; 
           } else {
             const value = isNaN(part) ? parseFloat(this.getCellValue(part)) : parseFloat(part);
             
