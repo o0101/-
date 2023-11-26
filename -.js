@@ -48,6 +48,10 @@
     #cssImportTimeout = 5000;
     #untilCSSFinalized = 0;
 
+    static {
+      this.link();
+    }
+
     static get observedAttributes() {
       return ['state', ...(this.attrs ? this.attrs : [])];
     }
@@ -366,21 +370,28 @@
 
   $.querySelector = querySelector;
 
-  globalThis.customElements.define('hyph-en', $);
-
   // helpers
     function convertCaseAndName(inputString) {
-      let cased = inputString
-        // Replace each uppercase letter with a hyphen and the lowercase version of the letter
-        .replace(/([A-Z])/g, '-$1')
-        .toLowerCase()
-        // Remove the leading hyphen if any
-        .replace(/^-/, ''); 
-      const enoughHyphens = cased.includes('-');
-      if ( ! enoughHyphens ) {
-        cased += '-el'
+      // Check if the string is all uppercase
+      let hyphenCount = 0;
+
+      let result = '';
+      for (let i = 0; i < inputString.length; i++) {
+        const char = inputString[i];
+        const nextChar = inputString[i + 1];
+        // If it's an uppercase character
+        if (char === char.toUpperCase() && char !== char.toLowerCase()) {
+          // If it's not the first character and the next character is lowercase, add a hyphen
+          if (i > 0 && nextChar && nextChar === nextChar.toLowerCase()) {
+            result += '-';
+            hyphenCount++;
+          }
+          result += char.toLowerCase();
+        } else {
+          result += char;
+        }
       }
-      return cased;
+      return hyphenCount ? result : result + '-el';
     }
 
     // find selector anywhere in the document except in any custom element descendents of startElement
