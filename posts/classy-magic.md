@@ -13,13 +13,22 @@ Picture this: you're crafting a new subclass in JavaScript, and voila – it aut
 Our journey with Hyphen started on familiar grounds, but soon, we found ourselves charting new territories.
 
 ### 1. **Manual Registration**: 
-We initially toyed with the idea of explicit registration methods. It was straightforward, sure, but it kind of felt like using a flip phone in the age of smartphones – functional, but not quite there.
+We initially toyed with the idea of explicit registration methods. It was straightforward, sure, but it kind of felt like using a flip phone in the age of smartphones – functional, but not quite there. Calling `customElements.define` after every class is just so tiresome. And there's no call for a build tool with a single file drop in base class.
 
 ### 2. **Proxies Meet Error Stack Traces**: 
-Next, we flirted with a more novel approach – wielding JavaScript Proxies and parsing error stack traces. It was a bit like trying to read tea leaves; intriguing, yes, but fraught with complexity and browser compatibility hiccups.
+Next we flirted with bizarre approaches that aimed to achieve our multiple goals of minimal syntax noise, minimal keystrokes, and native JS syntax. We explored whether custom properties, like:
+
+```js
+class XYZ {
+  get [myCustomProp()]() {
+     return 'gotcha'
+  }
+}
+```
+were evaluated on declaration. Indeed, they were, however, they were no re-evaluated on subclass declaration, and we wanted something that developrers would not have manually put inside every subclass in order to trigger the detection. That would gain nothing. 
 
 ### 3. **A Proxy Revolution**:
-The real game-changer was when we decided to give Proxies a bit more power, introducing a function call trap. This was our "aha!" moment, allowing us to gracefully manage both direct and indirect subclassing.
+The real game-changer was when we decided to try a more novel approach, using JavaScript Proxies and parsing error stack traces. This was our "aha!" moment, allowing us to gracefully manage both direct and indirect subclassing. By trapping the prototype getter we could reliably detect subclassing across browser platforms. 
 
 ## Meet `subclassDetector` – Hyphen's New Ace
 
@@ -81,5 +90,7 @@ This exploration wasn't just a technical endeavor; it was about staying true to 
 ## In Conclusion
 
 Our adventure to automate custom element registration in JavaScript, as chronicled in our [GitHub repository](https://github.com/00000o1/-), stands as a narrative of innovation, technical exploration, and unwavering commitment to enhancing the developer experience. Hyphen has evolved, emerging as a more potent tool in the arsenal of web development.
+
+What's more, this method of subclass detection does not only work client-side with the web platform, it also works in Node.JS. By utilizing a corresponding `onSubclassed` function for Node you can get this magic JavaScript reflection there, too.
 
 So, fellow developers, we invite you to dive into the world of Hyphen, explore its features, and join us on this continuous journey of reshaping web development into a smoother, more delightful craft.
