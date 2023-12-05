@@ -3,7 +3,7 @@
   class SafariBug extends HTMLElement {
     constructor() {
       super();
-      this.shadow = this.attachShadow({ mode: 'closed' });
+      //this.shadow = this.attachShadow({ mode: 'closed' });
 
       this.count = 0;
     }
@@ -13,7 +13,7 @@
     }
 
     render() {
-      this.shadow.innerHTML = `
+      this.innerHTML = `
         <style>
           :host {
             margin: 16px;
@@ -27,7 +27,7 @@
   class SafariBugII extends HTMLElement {
     constructor() {
       super();
-      this.shadow = this.attachShadow({ mode: 'closed' });
+      //this.shadow = this.attachShadow({ mode: 'closed' });
     }
 
     connectedCallback() {
@@ -42,8 +42,8 @@
 
 
     render() {
-      this.shadow.innerHTML = `
-        <button onclick="this.getRootNode().host.update()">Show me the bug! 🐜</button>
+      this.innerHTML = `
+        <button onclick="this.closest('safari-bugii').update()">Show me the bug! 🐜</button>
       `;
     }
   }
@@ -51,7 +51,7 @@
   class SafariBugIII extends HTMLElement {
     constructor() {
       super();
-      this.shadow = this.attachShadow({ mode: 'closed' });
+      //this.shadow = this.attachShadow({ mode: 'closed' });
     }
 
     connectedCallback() {
@@ -59,8 +59,8 @@
     }
 
     render() {
-      this.shadow.innerHTML = `
-        <h1>Cute Bug 🐜</h1>
+      this.innerHTML = `
+        <h1>Cute non-Bug 🐜</h1>
         <safari-bug></safari-bug>
         <safari-bugii></safari-bugii>
       `;
@@ -75,12 +75,13 @@
 <hr style="margin: 32px 2px">
 <details>
   <summary>What's going on here?</summary>
-  <p>There is no code to add the increasing margin that you see. It simply occurs.</p>
+  <p>Without using Shadow DOM, this bug does not occur.</p>
+  <p>There is no code to add the increasing margin that you (do not) see. It simply (does not) occurs.</p>
   <dl>
     <dt>What's required to summon this bug?</dt>
     <dd>
       <ul>
-        <li>Shadow DOM (see <a href=safari-bug-nov-8-2023-variant-2>a non-Shadow DOM version without the bug</a>)</li>
+        <li>Shadow DOM (demonstrated here by absence disabling the bug)</li>
         <li>The custom elements</li>
         <li><pre>&lt;!DOCTYPE html></pre></li>
         <li><pre>:host { margin: XXXpx; }</pre> I checked values including 0.1px, 1px, 84px, 999px and all reproduced the bug. 0px did not as did removing this rule.</li>
